@@ -4,6 +4,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({
@@ -70,29 +71,62 @@ const ContactSection = () => {
     setIsSubmitting(false);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.4, 0, 0.2, 1]
+      }
+    }
+  };
+
   return (
-    <section className="py-20 bg-white" ref={sectionRef}>
+    <section className="py-20 bg-background" ref={sectionRef}>
       <div className="container mx-auto px-4">
-        <div className="flex flex-col lg:flex-row gap-12">
+        <motion.div
+          className="flex flex-col lg:flex-row gap-12"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
           {/* LEFT SIDE DETAILS */}
-          <div className="lg:w-1/2">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-6 fade-in">
+          <motion.div className="lg:w-1/2" variants={itemVariants}>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-foreground">
               Get In Touch
             </h2>
-            <p className="text-gray-600 mb-8 fade-in">
+            <p className="text-muted-foreground mb-8">
               Have questions about our services or want to schedule an
               appointment? Fill out the form and We&apos;ll get back to you as
               soon as possible.
             </p>
 
             {/* Contact Details */}
-            <div className="space-y-6 fade-in">
+            <div className="space-y-6">
               {/* Phone */}
-              <div className="flex items-start gap-4">
-                <div className="bg-sky-500 rounded-full p-2 mt-1">
+              <motion.div
+                className="flex items-start gap-4"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="bg-primary rounded-full p-2 mt-1">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-white"
+                    className="h-5 w-5 text-primary-foreground"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -106,17 +140,21 @@ const ContactSection = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold">Phone</h3>
-                  <p className="text-gray-600">Available Monday-Saturday, 9am-5pm</p>
+                  <h3 className="font-semibold text-foreground">Phone</h3>
+                  <p className="text-muted-foreground">Available Monday-Saturday, 9am-5pm</p>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Email */}
-              <div className="flex items-start gap-4">
-                <div className="bg-sky-500 rounded-full p-2 mt-1">
+              <motion.div
+                className="flex items-start gap-4"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="bg-primary rounded-full p-2 mt-1">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-white"
+                    className="h-5 w-5 text-primary-foreground"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -130,26 +168,26 @@ const ContactSection = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold">Email</h3>
-                  <p className="text-gray-600">
+                  <h3 className="font-semibold text-foreground">Email</h3>
+                  <p className="text-muted-foreground">
                     decentautodetailing@gmail.com
                   </p>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
           {/* RIGHT SIDE FORM */}
-          <div className="lg:w-1/2">
-            <div className="bg-white rounded-xl shadow-lg p-8 fade-in">
-              <h3 className="text-xl font-semibold mb-6">Send us a message</h3>
+          <motion.div className="lg:w-1/2" variants={itemVariants}>
+            <div className="bg-card rounded-xl shadow-lg p-8 border">
+              <h3 className="text-xl font-semibold mb-6 text-foreground">Send us a message</h3>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name */}
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-gray-700 mb-2"
+                    className="block text-foreground mb-2"
                   >
                     Name
                   </label>
@@ -159,7 +197,7 @@ const ContactSection = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
                     required
                   />
                 </div>
@@ -168,7 +206,7 @@ const ContactSection = () => {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-gray-700 mb-2"
+                    className="block text-foreground mb-2"
                   >
                     Email
                   </label>
@@ -178,7 +216,7 @@ const ContactSection = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
                     required
                   />
                 </div>
@@ -187,7 +225,7 @@ const ContactSection = () => {
                 <div>
                   <label
                     htmlFor="message"
-                    className="block text-gray-700 mb-2"
+                    className="block text-foreground mb-2"
                   >
                     Message
                   </label>
@@ -197,7 +235,7 @@ const ContactSection = () => {
                     value={formData.message}
                     onChange={handleChange}
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
                     required
                   />
                 </div>
@@ -210,15 +248,17 @@ const ContactSection = () => {
                 />
 
                 {/* Button */}
-                <button
+                <motion.button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-sky-500 text-white px-6 py-3 rounded-md font-medium hover:bg-sky-600 transition-colors w-full flex items-center justify-center shine-effect"
+                  className="bg-gradient-to-r from-primary to-blue-500 text-primary-foreground px-6 py-3 rounded-md font-medium shadow-2xl hover:shadow-3xl transition-all duration-300 w-full flex items-center justify-center"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   {isSubmitting ? (
                     <>
                       <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-foreground"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -242,11 +282,11 @@ const ContactSection = () => {
                   ) : (
                     "Send Message"
                   )}
-                </button>
+                </motion.button>
               </form>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

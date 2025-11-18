@@ -84,27 +84,27 @@ const DiscountModal = ({ isOpen, onClose }: DiscountModalProps) => {
           </div>
           {/* Header */}
           <div className="mb-5">
-            <div className="bg-sky-500 text-white px-6 py-3 rounded-lg">
+            <div className="bg-gradient-to-r from-primary to-blue-500 text-primary-foreground px-6 py-3 rounded-lg">
               <h3 className="text-2xl font-bold">{promoData.title}</h3>
             </div>
           </div>
 
           {/* Description */}
           <div className="mb-6">
-            <p className="text-gray-700 mb-4">
+            <p className="text-muted-foreground mb-4">
               {promoData.description}
             </p>
             <div className="flex justify-center items-center gap-2 mb-4">
-              <span className="text-4xl font-bold text-sky-400">
+              <span className="text-4xl font-bold text-primary">
                 {promoData.discountText}
               </span>
             </div>
           </div>
 
           {/* Discount Code */}
-          <div className="bg-gray-100 p-4 rounded-lg mb-6 border border-dashed border-blue-300">
-            <p className="text-sm text-gray-600 mb-1">Use promo code:</p>
-            <p className="text-xl font-mono font-bold text-sky-400 bg-white py-2 rounded-md">
+          <div className="bg-muted p-4 rounded-lg mb-6 border border-dashed border-primary/30">
+            <p className="text-sm text-muted-foreground mb-1">Use promo code:</p>
+            <p className="text-xl font-mono font-bold text-primary bg-background py-2 rounded-md">
               {promoData.discountCode}
             </p>
           </div>
@@ -112,7 +112,7 @@ const DiscountModal = ({ isOpen, onClose }: DiscountModalProps) => {
           {/* Button */}
           <div className="flex flex-col gap-3">
             {claimError && (
-              <p className="text-red-500 text-sm">{claimError}</p>
+              <p className="text-destructive text-sm">{claimError}</p>
             )}
             <button
               onClick={() => {
@@ -125,7 +125,7 @@ const DiscountModal = ({ isOpen, onClose }: DiscountModalProps) => {
                 onClose();
                 router.push('/booking');
               }}
-              className="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className="bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 text-primary-foreground font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               {promoData.buttonText}
             </button>
@@ -136,7 +136,7 @@ const DiscountModal = ({ isOpen, onClose }: DiscountModalProps) => {
                 localStorage.setItem('remindLaterUntil', remindUntil.toString());
                 onClose();
               }}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+              className="bg-muted hover:bg-muted/80 text-muted-foreground font-medium py-2 px-4 rounded-lg transition-colors"
             >
               Remind me later
             </button>

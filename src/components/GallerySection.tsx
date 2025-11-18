@@ -4,8 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
-import serviceimage1 from '../../public/pictures/service-1.jpg'; // Adjust the path as necessary
-import serviceimage2 from '../../public/pictures/service.jpg'; // Adjust the path as necessary
+
 
 const galleryImages = [
   {
@@ -20,12 +19,12 @@ const galleryImages = [
   },
   {
     id: 3,
-    src: serviceimage1,
+    src: '/pictures/service-1.jpg',
     alt: 'Window tinting process',
   },
   {
     id: 4,
-    src: serviceimage2,
+    src: '/pictures/service.jpg',
     alt: 'Ceramic coating application',
   },
 ];
