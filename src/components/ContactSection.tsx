@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -71,41 +69,23 @@ const ContactSection = () => {
     setIsSubmitting(false);
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: [0.4, 0, 0.2, 1]
-      }
-    }
-  };
-
   return (
     <section className="py-20 bg-background" ref={sectionRef}>
       <div className="container mx-auto px-4">
         <motion.div
           className="flex flex-col lg:flex-row gap-12"
-          variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
+          transition={{ staggerChildren: 0.2 }}
         >
           {/* LEFT SIDE DETAILS */}
-          <motion.div className="lg:w-1/2" variants={itemVariants}>
+          <motion.div 
+            className="lg:w-1/2"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
             <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-foreground">
               Get In Touch
             </h2>
@@ -178,7 +158,12 @@ const ContactSection = () => {
           </motion.div>
 
           {/* RIGHT SIDE FORM */}
-          <motion.div className="lg:w-1/2" variants={itemVariants}>
+          <motion.div 
+            className="lg:w-1/2"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
             <div className="bg-card rounded-xl shadow-lg p-8 border">
               <h3 className="text-xl font-semibold mb-6 text-foreground">Send us a message</h3>
 

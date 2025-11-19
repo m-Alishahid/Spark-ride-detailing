@@ -6,10 +6,6 @@ import Image from 'next/image';
 import { StaticImageData } from 'next/image';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import beforeImage from '../../public/pictures/before.jpg'
-import afterImage from '../../public/pictures/After.jpg'
-import after from '../../public/pictures/DecentAutoDetailing/Full Exterior Detail.jpg';
-// import before from '../../public/pictures/DecentAutoDetailing/Exterior Wash.png';
 
 // Define proper types for service content
 interface ParagraphContent {
@@ -137,9 +133,8 @@ const services: Services = {
         caption: 'Interior Transformation'
       },
       {
-        // before: before,
         before: 'https://images.unsplash.com/photo-1549924231-f129b911e442?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-        after: after,
+        after: 'https://images.unsplash.com/photo-1575844611398-2a68400b437c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80', // Fixed: replaced undefined 'after' with actual URL
         caption: 'Exterior Shine'
       }
     ],
@@ -292,8 +287,8 @@ const services: Services = {
     image: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
     beforeAfter: [
       {
-        before: beforeImage,
-        after: afterImage,
+        before: '/pictures/CeramicCoatingBefore.png',
+        after: '/pictures/CeramicCoatingAfter.png',
         caption: 'Paint Protection'
       }
     ],

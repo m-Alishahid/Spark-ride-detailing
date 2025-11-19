@@ -10,10 +10,6 @@ interface DiscountModalProps {
 
 const DiscountModal = ({ isOpen, onClose }: DiscountModalProps) => {
   const router = useRouter();
-  const [hasClaimed, setHasClaimed] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isClaiming, setIsClaiming] = useState(false);
-  const [claimError, setClaimError] = useState("");
   const [promoData, setPromoData] = useState<{
     title: string;
     description: string;
@@ -56,8 +52,7 @@ const DiscountModal = ({ isOpen, onClose }: DiscountModalProps) => {
       try {
         const response = await fetch('/api/discount-claim');
         const data = await response.json();
-        setHasClaimed(data.claimed);
-        setIsModalOpen(true);
+        // Removed unused setHasClaimed
       } catch (error) {
         console.error('Error checking discount claim:', error);
       }
@@ -111,9 +106,6 @@ const DiscountModal = ({ isOpen, onClose }: DiscountModalProps) => {
 
           {/* Button */}
           <div className="flex flex-col gap-3">
-            {claimError && (
-              <p className="text-destructive text-sm">{claimError}</p>
-            )}
             <button
               onClick={() => {
                 // Store promo code and discount for auto-apply in booking form
@@ -121,7 +113,6 @@ const DiscountModal = ({ isOpen, onClose }: DiscountModalProps) => {
                 const discountPercentage = parseInt(promoData.discountText.replace('% OFF', ''));
                 sessionStorage.setItem("auto_apply_promo_discount", discountPercentage.toString());
                 localStorage.setItem('discountClaimed', 'true');
-                setHasClaimed(true);
                 onClose();
                 router.push('/booking');
               }}

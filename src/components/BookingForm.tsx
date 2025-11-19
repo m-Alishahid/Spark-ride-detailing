@@ -1,25 +1,32 @@
-
-
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { serviceTypes, timeSlots, promoCodes, mainServices, vehicleTypes } from "@/Data/booking-service";
+import React, { useState, useEffect } from "react";
+import { serviceTypes, timeSlots, mainServices } from "@/Data/booking-service";
 import { allCities } from "@/Data/stateMapping";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Plus, Trash2 } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, Car, Package, User, Check, ChevronRight, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 
 // Define TypeScript interfaces
@@ -77,7 +84,6 @@ interface VehicleBooking {
   vehicleYear: string;
   vehicleColor: string;
   vehicleLength?: string;
-  mobileVehicleType?: string; // For mobile detailing vehicle type selection
 }
 
 interface FormData {
@@ -98,7 +104,7 @@ interface FormData {
 // Generate unique booking ID
 const generateBookingId = (): string => {
   const randomNum = Math.floor(10000 + Math.random() * 90000);
-  return `DAD-${randomNum}`; // Changed from QAC- to DAD- for Decent Auto Detailing
+  return `DAD-${randomNum}`;
 };
 
 // Phone number formatting utility
@@ -164,12 +170,32 @@ const BookingForm = () => {
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number } | null>(null);
   const [promoError, setPromoError] = useState("");
-  const [bookingId, setBookingId] = useState("");
   const [isManualState, setIsManualState] = useState(false);
-  const [autoAppliedPromo, setAutoAppliedPromo] = useState<string | null>(null);
+  const [direction, setDirection] = useState(0);
 
-  // Website name - Hardcoded as requested
+  // Website name
   const WEBSITE_NAME = "Decent Auto Detailing";
+
+  // Animation variants
+  const fadeIn = { 
+    hidden: { opacity: 0, y: 10 }, 
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } 
+  };
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: number) => ({
+      x: direction < 0 ? 300 : -300,
+      opacity: 0,
+    }),
+  };
 
   // Helper function to filter packages based on vehicle type
   const filterPackagesByVehicleType = (packages: ServicePackage[], vehicleType: string) => {
@@ -177,7 +203,6 @@ const BookingForm = () => {
       const packageId = pkg.id.toLowerCase();
       const vehicleTypeLower = vehicleType.toLowerCase();
 
-      // Check if package id contains vehicle type keywords
       const vehicleKeywords = ['sedan', 'suv', 'truck', 'van', 'boat', 'jet-ski', 'rv', 'motorcycle'];
 
       for (const keyword of vehicleKeywords) {
@@ -186,7 +211,6 @@ const BookingForm = () => {
         }
       }
 
-      // If no vehicle keyword found, show for all vehicle types
       return true;
     });
   };
@@ -198,18 +222,17 @@ const BookingForm = () => {
     return allCities[normalizedCity] || "";
   };
 
-  // Auto-apply promo code from sessionStorage (from discount modal)
+  // Auto-apply promo code from sessionStorage
   useEffect(() => {
     const autoApplyPromo = sessionStorage.getItem("auto_apply_promo");
     const autoApplyDiscount = sessionStorage.getItem("auto_apply_promo_discount");
     if (autoApplyPromo && autoApplyDiscount && !appliedPromo) {
-      // Directly apply the promo from sessionStorage without checking static array
       setAppliedPromo({ code: autoApplyPromo, discount: parseInt(autoApplyDiscount) });
       setPromoCode(autoApplyPromo);
-      sessionStorage.removeItem("auto_apply_promo"); // Clear after applying
-      sessionStorage.removeItem("auto_apply_promo_discount"); // Clear after applying
+      sessionStorage.removeItem("auto_apply_promo");
+      sessionStorage.removeItem("auto_apply_promo_discount");
     }
-  }, []);
+  }, [appliedPromo]); // Fixed: added appliedPromo dependency
 
   // Handle phone number input with formatting
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,27 +255,20 @@ const BookingForm = () => {
     let total = 0;
 
     formData.vehicleBookings.forEach(vehicle => {
-      // Find the service type
       const serviceType = serviceTypes.find(st => st.id === vehicle.serviceType);
-
-      // Find main service
       const mainService = mainServices.find(ms => ms.id === vehicle.mainService);
 
       let pkg;
 
       if (mainService) {
-        // Main Service Package
         pkg = mainService.packages.find(p => p.id === vehicle.package);
       } else if (serviceType?.variants && vehicle.variant) {
-        // Variant Package
         const variant = serviceType.variants.find(v => v.id === vehicle.variant);
         pkg = variant?.packages.find(p => p.id === vehicle.package);
       } else {
-        // Regular Service Package
         pkg = serviceType?.packages?.find(p => p.id === vehicle.package);
       }
 
-      // Add package price
       if (pkg) {
         let packagePrice = typeof pkg.price === 'string' ? Number(pkg.price) || 0 : pkg.price;
         const pricingType = pkg.pricingType || "fixed";
@@ -263,7 +279,6 @@ const BookingForm = () => {
         total += packagePrice;
       }
 
-      // Add additional services prices
       if (vehicle.additionalServices.length > 0) {
         let additionalServicesList: AdditionalService[] = [];
 
@@ -297,7 +312,6 @@ const BookingForm = () => {
     }
 
     try {
-      // First validate the promo code
       const validateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/promo-codes/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -312,7 +326,6 @@ const BookingForm = () => {
         return;
       }
 
-      // If valid, apply the promo code with current total amount
       const totalAmount = calculateTotalPrice();
       const applyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/promo-codes/apply`, {
         method: 'POST',
@@ -396,71 +409,45 @@ const BookingForm = () => {
   };
 
   // Reset dependent fields when service type changes
-  // const handleServiceTypeChange = (vehicleId: string, serviceTypeId: string) => {
-  //   updateVehicleBooking(vehicleId, 'serviceType', serviceTypeId);
-  //   updateVehicleBooking(vehicleId, 'variant', "");
-  //   updateVehicleBooking(vehicleId, 'mainService', "");
-  //   updateVehicleBooking(vehicleId, 'package', "");
-  //   updateVehicleBooking(vehicleId, 'additionalServices', []);
-  //   updateVehicleBooking(vehicleId, 'vehicleType', "");
-  //   updateVehicleBooking(vehicleId, 'vehicleMake', "");
-  //   updateVehicleBooking(vehicleId, 'vehicleModel', "");
-  //   updateVehicleBooking(vehicleId, 'vehicleYear', "");
-  //   updateVehicleBooking(vehicleId, 'vehicleColor', "");
-  //   updateVehicleBooking(vehicleId, 'vehicleLength', "");
-  // };
+  const handleServiceTypeChange = (vehicleId: string, serviceTypeId: string) => {
+    updateVehicleBooking(vehicleId, 'serviceType', serviceTypeId);
+    updateVehicleBooking(vehicleId, 'variant', "");
+    updateVehicleBooking(vehicleId, 'mainService', "");
+    updateVehicleBooking(vehicleId, 'package', "");
+    updateVehicleBooking(vehicleId, 'additionalServices', []);
+    
+    const serviceType = serviceTypes.find(st => st.id === serviceTypeId);
+    if (serviceType) {
+      updateVehicleBooking(vehicleId, 'vehicleType', serviceType.name);
+    } else {
+      updateVehicleBooking(vehicleId, 'vehicleType', "");
+    }
+    
+    updateVehicleBooking(vehicleId, 'vehicleMake', "");
+    updateVehicleBooking(vehicleId, 'vehicleModel', "");
+    updateVehicleBooking(vehicleId, 'vehicleYear', "");
+    updateVehicleBooking(vehicleId, 'vehicleColor', "");
+    updateVehicleBooking(vehicleId, 'vehicleLength', "");
+  };
 
-  // // Reset dependent fields when variant changes
-  // const handleVariantChange = (vehicleId: string, variantId: string) => {
-  //   updateVehicleBooking(vehicleId, 'variant', variantId);
-  //   updateVehicleBooking(vehicleId, 'mainService', "");
-  //   updateVehicleBooking(vehicleId, 'package', "");
-  //   updateVehicleBooking(vehicleId, 'additionalServices', []);
-  //   updateVehicleBooking(vehicleId, 'vehicleType', "");
-  // };
-
-  // Reset dependent fields when service type changes
-const handleServiceTypeChange = (vehicleId: string, serviceTypeId: string) => {
-  updateVehicleBooking(vehicleId, 'serviceType', serviceTypeId);
-  updateVehicleBooking(vehicleId, 'variant', "");
-  updateVehicleBooking(vehicleId, 'mainService', "");
-  updateVehicleBooking(vehicleId, 'package', "");
-  updateVehicleBooking(vehicleId, 'additionalServices', []);
-  
-  // ✅ Automatically set vehicleType based on service type
-  const serviceType = serviceTypes.find(st => st.id === serviceTypeId);
-  if (serviceType) {
-    updateVehicleBooking(vehicleId, 'vehicleType', serviceType.name);
-  } else {
-    updateVehicleBooking(vehicleId, 'vehicleType', "");
-  }
-  
-  updateVehicleBooking(vehicleId, 'vehicleMake', "");
-  updateVehicleBooking(vehicleId, 'vehicleModel', "");
-  updateVehicleBooking(vehicleId, 'vehicleYear', "");
-  updateVehicleBooking(vehicleId, 'vehicleColor', "");
-  updateVehicleBooking(vehicleId, 'vehicleLength', "");
-};
-
-// Reset dependent fields when variant changes
-const handleVariantChange = (vehicleId: string, variantId: string) => {
-  updateVehicleBooking(vehicleId, 'variant', variantId);
-  updateVehicleBooking(vehicleId, 'mainService', "");
-  updateVehicleBooking(vehicleId, 'package', "");
-  updateVehicleBooking(vehicleId, 'additionalServices', []);
-  
-  // ✅ Automatically set vehicleType based on variant
-  const vehicle = formData.vehicleBookings.find(v => v.id === vehicleId);
-  if (vehicle) {
-    const serviceType = serviceTypes.find(st => st.id === vehicle.serviceType);
-    if (serviceType?.variants) {
-      const variant = serviceType.variants.find(v => v.id === variantId);
-      if (variant) {
-        updateVehicleBooking(vehicleId, 'vehicleType', variant.name);
+  // Reset dependent fields when variant changes
+  const handleVariantChange = (vehicleId: string, variantId: string) => {
+    updateVehicleBooking(vehicleId, 'variant', variantId);
+    updateVehicleBooking(vehicleId, 'mainService', "");
+    updateVehicleBooking(vehicleId, 'package', "");
+    updateVehicleBooking(vehicleId, 'additionalServices', []);
+    
+    const vehicle = formData.vehicleBookings.find(v => v.id === vehicleId);
+    if (vehicle) {
+      const serviceType = serviceTypes.find(st => st.id === vehicle.serviceType);
+      if (serviceType?.variants) {
+        const variant = serviceType.variants.find(v => v.id === variantId);
+        if (variant) {
+          updateVehicleBooking(vehicleId, 'vehicleType', variant.name);
+        }
       }
     }
-  }
-};
+  };
 
   // Reset dependent fields when main service changes
   const handleMainServiceChange = (vehicleId: string, mainServiceId: string) => {
@@ -517,16 +504,14 @@ const handleVariantChange = (vehicleId: string, variantId: string) => {
     }));
   };
 
-  const handleTimeSelect = (time: string) => {
-    setFormData(prev => ({ ...prev, timeSlot: time }));
-  };
-
   const nextStep = () => {
+    setDirection(1);
     setCurrentStep((prev) => prev + 1);
     window.scrollTo(0, 0);
   };
 
   const prevStep = () => {
+    setDirection(-1);
     setCurrentStep((prev) => prev - 1);
     window.scrollTo(0, 0);
   };
@@ -535,18 +520,15 @@ const handleVariantChange = (vehicleId: string, variantId: string) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Generate unique booking ID
     const newBookingId = generateBookingId();
-    setBookingId(newBookingId);
 
     try {
       const totalPrice = calculateTotalPrice();
       const discountedPrice = calculateFinalPrice();
 
-      // Prepare data according to MongoDB schema
       const bookingData = {
         bookingId: newBookingId,
-        webName: WEBSITE_NAME, // Hardcoded website name
+        webName: WEBSITE_NAME,
         formData: formData,
         totalPrice: totalPrice,
         discountedPrice: discountedPrice,
@@ -555,10 +537,8 @@ const handleVariantChange = (vehicleId: string, variantId: string) => {
         promoCode: appliedPromo?.code || null,
         submittedAt: new Date().toISOString(),
         vehicleCount: formData.vehicleBookings.length,
-        status: "pending" // Default status as per schema
+        status: "pending"
       };
-
-      console.log("Sending booking data:", bookingData);
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/booking`, { 
         method: "POST",
@@ -569,18 +549,16 @@ const handleVariantChange = (vehicleId: string, variantId: string) => {
       });
 
       const data = await res.json();
-      console.log("Booking API response:", data);
 
       if (res.ok) {
         toast.success('Booking Confirmed Successfully');
         setShowConfirmation(true);
       } else {
-        console.error("Booking failed:", data.error);
         toast.error(data.error || 'Booking Confirmation Error');
       }
 
-    } catch (err) {
-      console.error("Error submitting booking:", err);
+    } catch (error) { // Fixed: changed 'err' to 'error'
+      console.error('Booking error:', error);
       toast.error('Network error - please try again');
     } finally {
       setIsSubmitting(false);
@@ -622,12 +600,8 @@ const handleVariantChange = (vehicleId: string, variantId: string) => {
     setPromoCode("");
     setAppliedPromo(null);
     setPromoError("");
-    setBookingId("");
     setIsManualState(false);
   };
-
-  const getStepClass = (step: number) =>
-    step <= currentStep ? "bg-sky-500" : "bg-gray-300";
 
   // Auto-detect state when city changes
   useEffect(() => {
@@ -666,768 +640,840 @@ const handleVariantChange = (vehicleId: string, variantId: string) => {
            (!requiresLength || vehicle.vehicleLength);
   });
 
+  // Step icons and titles
+  const stepConfig = [
+    { step: 1, label: "Vehicle Information", icon: <Car size={18} />, description: "Tell us about your vehicle" },
+    { step: 2, label: "Service Selection", icon: <Package size={18} />, description: "Choose your services" },
+    { step: 3, label: "Your Details", icon: <User size={18} />, description: "Finalize booking" },
+  ];
+
   return (
     <>
-      <div className="bg-white rounded-xl shadow-xl">
-        {/* Progress Steps */}
-        <div className="flex items-center justify-between mb-8 px-6 pt-6">
-          <div className={`flex-1 h-2 ${getStepClass(1)}`}></div>
-          <div className={`flex-1 h-2 ${getStepClass(2)}`}></div>
-          <div className={`flex-1 h-2 ${getStepClass(3)}`}></div>
+      <div className="min-h-screen bg-gray-50 text-gray-900 font-['Poppins']">
+        {/* Header Section - Spark Ride Style */}
+        <div className="bg-gradient-to-br from-[#10B5DB]/10 via-white to-gray-100 pt-24 pb-16">
+          <div className="container mx-auto px-4 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                Book Your <span className="text-[#10B5DB]">Premium</span> Service
+              </h1>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Experience the {WEBSITE_NAME} difference with our professional detailing services. 
+                Get your vehicle looking showroom-ready.
+              </p>
+            </motion.div>
+          </div>
         </div>
 
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold">
-            Step {currentStep}:{" "}
-            {currentStep === 1
-              ? "Select your services"
-              : currentStep === 2
-                ? "Date/Time"
-                : "All about you!"}
-          </h2>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6">
-          {/* --- Step 1: Service Selection --- */}
-          {currentStep === 1 && (
-            <div className="space-y-8 animate-fade-in">
-              {/* Add Vehicle Button */}
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">
-                  Vehicle Services ({formData.vehicleBookings.length})
-                </h3>
-                <Button
-                  type="button"
-                  onClick={addVehicleBooking}
-                  className="bg-sky-500 hover:bg-sky-600 text-white"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Another Vehicle
-                </Button>
-              </div>
-
-              {/* Vehicle Booking Sections */}
-              {formData.vehicleBookings.map((vehicle, index) => {
-                const serviceType = serviceTypes.find(st => st.id === vehicle.serviceType);
-                const mainService = mainServices.find(ms => ms.id === vehicle.mainService);
-                let selectedPackage;
-                let additionalServicesList: AdditionalService[] = [];
-
-                if (mainService) {
-                  selectedPackage = mainService.packages.find(p => p.id === vehicle.package);
-                } else if (serviceType?.variants && vehicle.variant) {
-                  const variant = serviceType.variants.find(v => v.id === vehicle.variant);
-                  selectedPackage = variant?.packages.find(p => p.id === vehicle.package);
-                  additionalServicesList = variant?.additionalServices || [];
-                } else {
-                  selectedPackage = serviceType?.packages?.find(p => p.id === vehicle.package);
-                  additionalServicesList = serviceType?.additionalServices || [];
-                }
-
-                const requiresLength = selectedPackage?.pricingType === "perFoot";
-
-                return (
-                  <div key={vehicle.id} className="border rounded-lg p-6 bg-gray-50 relative">
-                    {/* Remove Vehicle Button */}
-                    {formData.vehicleBookings.length > 1 && (
-                      <Button
-                        type="button"
-                        onClick={() => removeVehicleBooking(vehicle.id)}
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-4 right-4"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-
-                    <h4 className="text-lg font-medium mb-4">
-                      Vehicle {index + 1}
-                    </h4>
-
-                    <div className="space-y-4">
-                      {/* Service Type Selection */}
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          vehicle Type
-                        </label>
-                        <select
-                          value={vehicle.serviceType}
-                          onChange={(e) => handleServiceTypeChange(vehicle.id, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                        >
-                          <option value="">Select a service type</option>
-                          {serviceTypes.map((service) => (
-                            <option key={service.id} value={service.id}>
-                              {service.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Variant Selection for Car Detailing */}
-                      {serviceType?.variants && (
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            Car Type
-                          </label>
-                          <select
-                            value={vehicle.variant}
-                            onChange={(e) => handleVariantChange(vehicle.id, e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                          >
-                            <option value="">Select vehicle type</option>
-                            {serviceType.variants.map((variant) => (
-                              <option key={variant.id} value={variant.id}>
-                                {variant.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-
-                      {/* Main Service Selection */}
-                      {(vehicle.variant || (serviceType && !serviceType.variants)) && !vehicle.mainService && (
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            Premium Service Type
-                          </label>
-                          <select
-                            value={vehicle.mainService}
-                            onChange={(e) => handleMainServiceChange(vehicle.id, e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                          >
-                            <option value="">Select a premium service</option>
-                            {mainServices.map((service) => (
-                              <option key={service.id} value={service.id}>
-                                {service.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-
-                      {/* Main Service Packages */}
-                      {vehicle.mainService && (
-                        <div className="space-y-4">
-                          <label className="block text-sm font-medium">
-                            Select {mainService?.name} Package
-                          </label>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {filterPackagesByVehicleType(mainService?.packages || [], vehicle.vehicleType).map((pkg) => {
-                              const isSelected = vehicle.package === pkg.id;
-                              return (
-                                <div
-                                  key={pkg.id}
-                                  onClick={() => updateVehicleBooking(vehicle.id, 'package', pkg.id)}
-                                  className={`border rounded-lg p-4 cursor-pointer transition-all ${isSelected
-                                    ? "border-sky-500 bg-sky-50 shadow-md"
-                                    : "border-gray-300 hover:border-sky-500 hover:shadow-sm"
-                                    }`}
-                                >
-                                  <div className="flex justify-between items-start mb-2">
-                                    <span className="font-medium text-gray-900">{pkg.name}</span>
-                                    <span className="font-bold text-sky-600">
-                                      ${pkg.price}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm text-gray-600">{pkg.description}</p>
-                                  {pkg.includes && (
-                                    <div className="mt-2 text-xs text-gray-500">
-                                      <span className="font-medium">Includes:</span>
-                                      <ul className="list-disc list-inside mt-1">
-                                        {pkg.includes.map((item, index) => (
-                                          <li key={index}>{item}</li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-                                  {isSelected && (
-                                    <div className="mt-2 text-sky-600 flex items-center text-sm">
-                                      ✓ Selected
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                          {/* Additional Services */}
-                          {additionalServicesList.length > 0 && (
-                            <div className="space-y-4 pt-6 border-t">
-                              <label className="block text-lg font-medium">
-                                Add-on Services
-                              </label>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {additionalServicesList.map((svc) => (
-                                  <div key={svc.id} className="flex items-start space-x-3 p-3 border rounded-lg">
-                                    <input
-                                      type="checkbox"
-                                      id={`${vehicle.id}-${svc.id}`}
-                                      checked={vehicle.additionalServices.includes(svc.id)}
-                                      onChange={() => {
-                                        const newAdditionalServices = vehicle.additionalServices.includes(svc.id)
-                                          ? vehicle.additionalServices.filter(id => id !== svc.id)
-                                          : [...vehicle.additionalServices, svc.id];
-                                        updateVehicleBooking(vehicle.id, 'additionalServices', newAdditionalServices);
-                                      }}
-                                      className="mt-1 h-5 w-5 accent-sky-500"
-                                    />
-                                    <div className="flex-1">
-                                      <label htmlFor={`${vehicle.id}-${svc.id}`} className="text-sm font-medium text-gray-900 cursor-pointer">
-                                        {svc.name}
-                                      </label>
-                                      <p className="text-sm text-gray-600">{svc.description}</p>
-                                      <p className="text-sm font-semibold text-sky-600 mt-1">${svc.price}</p>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Vehicle Details */}
-                          {vehicle.package && (
-                            <>
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-6 border-t">
-                                {/* Vehicle Type Input */}
-                                <div>
-                                  <label htmlFor={`${vehicle.id}-vehicleType`} className="block text-gray-700 mb-1 text-sm">
-                                    Vehicle Type*
-                                  </label>
-                                  <input
-                                    type="text"
-                                    id={`${vehicle.id}-vehicleType`}
-                                    value={vehicle.vehicleType}
-                                    onChange={(e) => updateVehicleBooking(vehicle.id, 'vehicleType', e.target.value)}
-                                    placeholder="Vehicle Type *"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                    required
-                                  />
-                                </div>
-                                {/* Other Vehicle Fields */}
-                                {[
-                                  { id: "vehicleYear", label: "Year*", placeholder: "e.g., 2023" },
-                                  { id: "vehicleMake", label: "Make*", placeholder: "e.g., Toyota" },
-                                  { id: "vehicleModel", label: "Model*", placeholder: "e.g., Camry" },
-                                  { id: "vehicleColor", label: "Color*", placeholder: "e.g., Red" }
-                                ].map((field) => (
-                                  <div key={field.id}>
-                                    <label htmlFor={`${vehicle.id}-${field.id}`} className="block text-gray-700 mb-1 text-sm">
-                                      {field.label}
-                                    </label>
-                                    <input
-                                      type="text"
-                                      id={`${vehicle.id}-${field.id}`}
-                                      value={vehicle[field.id as keyof VehicleBooking] as string}
-                                      onChange={(e) => updateVehicleBooking(vehicle.id, field.id as keyof VehicleBooking, e.target.value)}
-                                      placeholder={field.placeholder}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                      required
-                                    />
-                                  </div>
-                                ))}
-                              </div>
-
-                              {/* Vehicle Length Input (for perFoot pricing) */}
-                              {requiresLength && (
-                                <div>
-                                  <label htmlFor={`${vehicle.id}-vehicleLength`} className="block text-gray-700 mb-1 text-sm">
-                                    Vehicle Length (feet)*
-                                  </label>
-                                  <input
-                                    type="number"
-                                    id={`${vehicle.id}-vehicleLength`}
-                                    value={vehicle.vehicleLength || ""}
-                                    onChange={(e) => updateVehicleBooking(vehicle.id, 'vehicleLength', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                    placeholder="Enter length in feet"
-                                    required
-                                    min="1"
-                                    step="0.1"
-                                  />
-                                  <p className="text-sm text-gray-500 mt-1">
-                                    Price will be calculated based on the length of your vehicle
-                                  </p>
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Total Price Display */}
-              {formData.vehicleBookings.some(v => v.package) && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex justify-between items-center font-semibold text-lg">
-                    <span>Estimated Total for {formData.vehicleBookings.length} vehicle(s):</span>
-                    <span>${calculateTotalPrice().toFixed(2)}</span>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1">
-                    * Final price may vary based on actual vehicle condition and requirements
-                  </p>
-                </div>
-              )}
-
-              <div className="flex justify-between pt-4">
-                <div></div>
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  className="bg-sky-500 hover:bg-sky-600 text-white px-8 py-2 rounded"
-                  disabled={!areAllVehiclesValid}
-                >
-                  Next Step →
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* --- Step 2: Date & Time --- */}
-          {currentStep === 2 && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Date Picker */}
-                <div>
-                  <label className="block text-gray-700 mb-2">Select a Date*</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.date
-                          ? format(new Date(formData.date), "PPP")
-                          : "Pick a date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.date ? new Date(formData.date) : undefined}
-                        onSelect={handleDateSelect}
-                        disabled={(date) => {
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0);
-                          return date < today || date.getDay() === 0;
-                        }}
-                        initialFocus
-                        className={cn("p-3")}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                {/* Time Picker */}
-                <div>
-                  <label className="block text-gray-700 mb-2">Select a Time*</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {timeSlots.map((time: string) => (
-                      <button
-                        key={time}
-                        type="button"
-                        className={cn(
-                          "py-2 px-3 text-sm border rounded-md text-center",
-                          formData.timeSlot === time
-                            ? "bg-sky-500 text-white border-sky-500"
-                            : "bg-white text-gray-700 border-gray-300 hover:border-sky-500"
-                        )}
-                        onClick={() => handleTimeSelect(time)}
-                      >
-                        {time}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-between pt-4">
-                <Button
-                  type="button"
-                  onClick={prevStep}
-                  variant="outline"
-                  className="border-gray-300"
-                >
-                  ← Previous Step
-                </Button>
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  className="bg-sky-500 hover:bg-sky-600 text-white px-8 py-2 rounded"
-                  disabled={!formData.date || !formData.timeSlot}
-                >
-                  Next Step →
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* --- Step 3: Personal Info --- */}
-          {currentStep === 3 && (
-            <div className="space-y-6 animate-fade-in">
-              {/* Contact Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { id: "firstName", label: "First Name*", type: "text" },
-                  { id: "lastName", label: "Last Name*", type: "text" },
-                  { id: "email", label: "Email*", type: "email" },
-                ].map((field) => (
-                  <div key={field.id}>
-                    <label
-                      htmlFor={field.id}
-                      className="block text-gray-700 mb-1 text-sm"
-                    >
-                      {field.label}
-                    </label>
-                    <input
-                      type={field.type}
-                      id={field.id}
-                      name={field.id}
-                      value={formData[field.id as keyof FormData] as string}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                      required
-                    />
-                  </div>
-                ))}
-
-                {/* Phone Input with USA Format */}
-                <div>
-                  <label htmlFor="phone" className="block text-gray-700 mb-1 text-sm">
-                    Mobile Phone*
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handlePhoneChange}
-                    placeholder="+1 (555) 123-4567"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                    required
-                    maxLength={17}
-                  />
-                </div>
-              </div>
-
-              {/* Address Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <label htmlFor="address" className="block text-gray-700 mb-1">
-                    Street Address*
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="city" className="block text-gray-700 mb-1">
-                    City*
-                  </label>
-                  <input
-                    type="text"
-                    id="city"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="state" className="block text-gray-700 mb-1">
-                    State*
-                  </label>
-                  <input
-                    type="text"
-                    id="state"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                    placeholder="State"
-                    required
-                  />
-                  {formData.city && !formData.state && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      State will be auto-detected when you enter city
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="zip" className="block text-gray-700 mb-1">
-                    ZIP Code*
-                  </label>
-                  <input
-                    type="text"
-                    id="zip"
-                    name="zip"
-                    value={formData.zip}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                    required
-                    maxLength={5}
-                    pattern="[0-9]{5}"
-                    title="5-digit ZIP code"
-                  />
-                </div>
-              </div>
-
-              {/* Promo Code Section */}
-              <div className="border rounded-lg p-4 bg-gray-50">
-                <h3 className="font-semibold text-lg mb-3">Promo Code</h3>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={promoCode}
-                    onChange={handlePromoCodeChange}
-                    placeholder="Enter promo code"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                    disabled={!!appliedPromo}
-                  />
-                  {appliedPromo ? (
-                    <Button
-                      type="button"
-                      onClick={removePromoCode}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-                    >
-                      Remove
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={applyPromoCode}
-                      className="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded"
-                      disabled={!promoCode.trim()}
-                    >
-                      Apply
-                    </Button>
-                  )}
-                </div>
-                {promoError && (
-                  <p className="text-red-500 text-sm mt-2">{promoError}</p>
-                )}
-                {appliedPromo && (
-                  <p className="text-sky-500 text-sm mt-2">
-                    ✅ Promo code applied! {appliedPromo.discount}% discount
-                  </p>
-                )}
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label
-                  htmlFor="notes"
-                  className="block text-gray-700 mb-1 text-sm"
-                >
-                  Special Instructions (optional)
-                </label>
-                <textarea
-                  id="notes"
-                  name="notes"
-                  value={formData.notes}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500"
-                  placeholder="Any special requests or information we should know"
-                />
-              </div>
-
-              {/* Booking Summary */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-lg mb-3">Booking Summary</h3>
-                <div className="space-y-4">
-                  {formData.vehicleBookings.map((vehicle, index) => {
-                    const serviceType = serviceTypes.find(st => st.id === vehicle.serviceType);
-                    const mainService = mainServices.find(ms => ms.id === vehicle.mainService);
-                    let selectedPackage;
-                    let vehicleTotal = 0;
-
-                    if (mainService) {
-                      selectedPackage = mainService.packages.find(p => p.id === vehicle.package);
-                    } else if (serviceType?.variants && vehicle.variant) {
-                      const variant = serviceType.variants.find(v => v.id === vehicle.variant);
-                      selectedPackage = variant?.packages.find(p => p.id === vehicle.package);
-                    } else {
-                      selectedPackage = serviceType?.packages?.find(p => p.id === vehicle.package);
-                    }
-
-                    if (selectedPackage) {
-                      let packagePrice = typeof selectedPackage.price === 'string' ? Number(selectedPackage.price) || 0 : selectedPackage.price;
-                      if (selectedPackage.pricingType === "perFoot" && vehicle.vehicleLength) {
-                        packagePrice *= parseFloat(vehicle.vehicleLength);
-                      }
-                      vehicleTotal += packagePrice;
-                    }
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
+            
+            {/* Progress Bar - Desktop - Spark Ride Style */}
+            <div className="hidden lg:flex lg:w-1/4">
+              <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Booking Steps</h3>
+                <div className="space-y-6">
+                  {stepConfig.map(({ step: stepNum, label, icon, description }) => {
+                    const isActive = currentStep === stepNum;
+                    const isCompleted = currentStep > stepNum;
 
                     return (
-                      <div key={vehicle.id} className="border-b pb-4 last:border-b-0">
-                        <h4 className="font-medium mb-2">Vehicle {index + 1}</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <span className="font-medium">Service:</span> {mainService?.name || serviceType?.name}
-                            {vehicle.variant && ` (${serviceType?.variants?.find(v => v.id === vehicle.variant)?.name})`}
-                          </div>
-                          <div>
-                            <span className="font-medium">Package:</span> {selectedPackage?.name}
-                          </div>
-                          <div>
-                            <span className="font-medium">Vehicle:</span> {vehicle.vehicleYear} {vehicle.vehicleMake} {vehicle.vehicleModel}
-                          </div>
-                          <div>
-                            <span className="font-medium">Color:</span> {vehicle.vehicleColor}
-                          </div>
-                          {vehicle.additionalServices.length > 0 && (
-                            <div className="md:col-span-2">
-                              <span className="font-medium">Add-ons:</span> {vehicle.additionalServices.length} service(s)
-                            </div>
-                          )}
-                          <div className="md:col-span-2 text-right font-medium">
-                            Vehicle Total: ${vehicleTotal.toFixed(2)}
-                          </div>
+                      <div key={stepNum} className="flex items-start space-x-3">
+                        <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                          isActive 
+                            ? "bg-[#10B5DB] border-[#10B5DB] text-white" 
+                            : isCompleted 
+                              ? "bg-green-500 border-green-500 text-white"
+                              : "bg-gray-100 border-gray-300 text-gray-500"
+                        }`}>
+                          {isCompleted ? <Check size={16} /> : icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-medium text-sm ${
+                            isActive ? "text-[#10B5DB]" : isCompleted ? "text-gray-900" : "text-gray-500"
+                          }`}>
+                            {label}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">{description}</p>
                         </div>
                       </div>
                     );
                   })}
-
-                  {/* Promo Code Discount Display */}
-                  {appliedPromo && (
-                    <>
-                      <div className="flex justify-between text-green-600">
-                        <span>Promo Code ({appliedPromo.code}):</span>
-                        <span>-{appliedPromo.discount}%</span>
-                      </div>
-                      <div className="flex justify-between text-green-600">
-                        <span>Discount Amount:</span>
-                        <span>-${calculateDiscount().toFixed(2)}</span>
-                      </div>
-                    </>
-                  )}
-
-                  <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                    <span>Total ({formData.vehicleBookings.length} vehicles):</span>
-                    <span>${calculateFinalPrice().toFixed(2)}</span>
-                  </div>
-
-                  {appliedPromo && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      * Original price: ${calculateTotalPrice().toFixed(2)}
-                    </p>
-                  )}
                 </div>
               </div>
+            </div>
 
-              {/* Submit */}
-              <div className="flex justify-between pt-4">
-                <Button
-                  type="button"
-                  onClick={prevStep}
-                  variant="outline"
-                  className="border-gray-300"
-                >
-                  ← Previous Step
-                </Button>
-                <Button
-                  type="submit"
-                  className="bg-sky-500 hover:bg-sky-600 text-white px-8 py-2 rounded flex items-center"
-                  disabled={
-                    isSubmitting ||
-                    !formData.firstName ||
-                    !formData.lastName ||
-                    !formData.email ||
-                    !formData.phone ||
-                    !formData.address ||
-                    !formData.city ||
-                    !formData.state ||
-                    !formData.zip
-                  }
-                >
-                  {isSubmitting && (
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  )}
-                  {isSubmitting ? "Processing..." : "Complete Booking"}
-                </Button>
+            {/* Main Form Content */}
+            <div className="lg:w-3/4">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-6 md:p-8">
+                <form onSubmit={handleSubmit}>
+                  <AnimatePresence initial={false} custom={direction} mode="wait">
+                    
+                    {/* STEP 1 - Vehicle Information - Spark Ride Style */}
+                    {currentStep === 1 && (
+                      <motion.div
+                        key="step1"
+                        custom={direction}
+                        variants={slideVariants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        className="space-y-6"
+                      >
+                        <div className="text-center mb-8">
+                          <div className="w-12 h-12 bg-[#10B5DB]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Car className="h-6 w-6 text-[#10B5DB]" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-gray-900">Vehicle Information</h2>
+                          <p className="text-gray-600 mt-2">Tell us about the vehicle(s) you want serviced</p>
+                        </div>
+
+                        {/* Add Vehicle Button - Top */}
+                        <div className="flex justify-between items-center">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            Vehicle Services ({formData.vehicleBookings.length})
+                          </h3>
+                          <Button
+                            type="button"
+                            onClick={addVehicleBooking}
+                            className="bg-[#10B5DB] hover:bg-[#10B5DB]/90 text-white"
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Another Vehicle
+                          </Button>
+                        </div>
+
+                        {/* Vehicle Booking Sections */}
+                        {formData.vehicleBookings.map((vehicle, index) => {
+                          const serviceType = serviceTypes.find(st => st.id === vehicle.serviceType);
+                          const mainService = mainServices.find(ms => ms.id === vehicle.mainService);
+                          let selectedPackage;
+
+                          if (mainService) {
+                            selectedPackage = mainService.packages.find(p => p.id === vehicle.package);
+                          } else if (serviceType?.variants && vehicle.variant) {
+                            const variant = serviceType.variants.find(v => v.id === vehicle.variant);
+                            selectedPackage = variant?.packages.find(p => p.id === vehicle.package);
+                          } else {
+                            selectedPackage = serviceType?.packages?.find(p => p.id === vehicle.package);
+                          }
+
+                          const requiresLength = selectedPackage?.pricingType === "perFoot";
+
+                          return (
+                            <motion.div
+                              key={vehicle.id}
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.3, delay: index * 0.1 }}
+                              className="border border-gray-200 rounded-xl bg-white p-6 shadow-sm relative"
+                            >
+                              {/* Remove Vehicle Button */}
+                              {formData.vehicleBookings.length > 1 && (
+                                <Button
+                                  type="button"
+                                  onClick={() => removeVehicleBooking(vehicle.id)}
+                                  variant="outline"
+                                  size="sm"
+                                  className="absolute top-4 right-4 text-red-600 border-red-200 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+
+                              <div className="flex justify-between items-center mb-4">
+                                <div>
+                                  <h4 className="text-lg font-semibold text-gray-900">Vehicle {index + 1}</h4>
+                                  {vehicle.vehicleType && (
+                                    <p className="text-sm text-gray-600 capitalize">
+                                      {vehicle.vehicleType} Details
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="space-y-4">
+                                {/* Service Type Selection */}
+                                <div className="space-y-2">
+                                  <Label className="text-gray-900 font-medium">Vehicle Type *</Label>
+                                  <Select 
+                                    value={vehicle.serviceType} 
+                                    onValueChange={(value) => handleServiceTypeChange(vehicle.id, value)}
+                                  >
+                                    <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900">
+                                      <SelectValue placeholder="Select your vehicle type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {serviceTypes.map((service) => (
+                                        <SelectItem key={service.id} value={service.id}>
+                                          {service.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+
+                                {/* Variant Selection for Car Detailing */}
+                                {serviceType?.variants && (
+                                  <div className="space-y-2">
+                                    <Label className="text-gray-900 font-medium">Car Type</Label>
+                                    <Select 
+                                      value={vehicle.variant} 
+                                      onValueChange={(value) => handleVariantChange(vehicle.id, value)}
+                                    >
+                                      <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900">
+                                        <SelectValue placeholder="Select vehicle type" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {serviceType.variants.map((variant) => (
+                                          <SelectItem key={variant.id} value={variant.id}>
+                                            {variant.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                )}
+
+                                {/* Main Service Selection */}
+                                {(vehicle.variant || (serviceType && !serviceType.variants)) && !vehicle.mainService && (
+                                  <div className="space-y-2">
+                                    <Label className="text-gray-900 font-medium">Premium Service Type</Label>
+                                    <Select 
+                                      value={vehicle.mainService} 
+                                      onValueChange={(value) => handleMainServiceChange(vehicle.id, value)}
+                                    >
+                                      <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900">
+                                        <SelectValue placeholder="Select a premium service" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {mainServices.map((service) => (
+                                          <SelectItem key={service.id} value={service.id}>
+                                            {service.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                )}
+
+                                {/* Main Service Packages */}
+                                {vehicle.mainService && (
+                                  <div className="space-y-4">
+                                    <Label className="block text-gray-900 font-medium">
+                                      Select {mainService?.name} Package
+                                    </Label>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      {filterPackagesByVehicleType(mainService?.packages || [], vehicle.vehicleType).map((pkg) => {
+                                        const isSelected = vehicle.package === pkg.id;
+                                        return (
+                                          <div
+                                            key={pkg.id}
+                                            onClick={() => updateVehicleBooking(vehicle.id, 'package', pkg.id)}
+                                            className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 ${
+                                              isSelected 
+                                                ? "border-[#10B5DB] bg-[#10B5DB]/5 shadow-sm" 
+                                                : "border-gray-200 hover:border-[#10B5DB]/50 hover:shadow-sm"
+                                            }`}
+                                          >
+                                            <div className="flex justify-between items-start mb-2">
+                                              <span className="font-medium text-gray-900">{pkg.name}</span>
+                                              <span className="font-bold text-[#10B5DB]">
+                                                ${pkg.price}
+                                              </span>
+                                            </div>
+                                            <p className="text-sm text-gray-600">{pkg.description}</p>
+                                            {pkg.includes && (
+                                              <div className="mt-2 text-xs text-gray-500">
+                                                <span className="font-medium">Includes:</span>
+                                                <ul className="list-disc list-inside mt-1">
+                                                  {pkg.includes.map((item, index) => (
+                                                    <li key={index}>{item}</li>
+                                                  ))}
+                                                </ul>
+                                              </div>
+                                            )}
+                                            {isSelected && (
+                                              <div className="mt-2 text-[#10B5DB] flex items-center text-sm">
+                                                <Check size={16} className="mr-2" /> Selected
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+
+                                    {/* Vehicle Details */}
+                                    {vehicle.package && (
+                                      <>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-6 border-t border-gray-200">
+                                          {/* Vehicle Type Input */}
+                                          <div className="space-y-2">
+                                            <Label htmlFor={`${vehicle.id}-vehicleType`} className="text-gray-900">
+                                              Vehicle Type*
+                                            </Label>
+                                            <Input
+                                              type="text"
+                                              id={`${vehicle.id}-vehicleType`}
+                                              value={vehicle.vehicleType}
+                                              onChange={(e) => updateVehicleBooking(vehicle.id, 'vehicleType', e.target.value)}
+                                              placeholder="Vehicle Type *"
+                                              className="bg-white border-gray-300"
+                                              required
+                                            />
+                                          </div>
+                                          {/* Other Vehicle Fields */}
+                                          {[
+                                            { id: "vehicleYear", label: "Year*", placeholder: "e.g., 2023" },
+                                            { id: "vehicleMake", label: "Make*", placeholder: "e.g., Toyota" },
+                                            { id: "vehicleModel", label: "Model*", placeholder: "e.g., Camry" },
+                                            { id: "vehicleColor", label: "Color*", placeholder: "e.g., Red" }
+                                          ].map((field) => (
+                                            <div key={field.id} className="space-y-2">
+                                              <Label htmlFor={`${vehicle.id}-${field.id}`} className="text-gray-900">
+                                                {field.label}
+                                              </Label>
+                                              <Input
+                                                type="text"
+                                                id={`${vehicle.id}-${field.id}`}
+                                                value={vehicle[field.id as keyof VehicleBooking] as string}
+                                                onChange={(e) => updateVehicleBooking(vehicle.id, field.id as keyof VehicleBooking, e.target.value)}
+                                                placeholder={field.placeholder}
+                                                className="bg-white border-gray-300"
+                                                required
+                                              />
+                                            </div>
+                                          ))}
+                                        </div>
+
+                                        {/* Vehicle Length Input (for perFoot pricing) */}
+                                        {requiresLength && (
+                                          <div className="space-y-2">
+                                            <Label htmlFor={`${vehicle.id}-vehicleLength`} className="text-gray-900">
+                                              Vehicle Length (feet)*
+                                            </Label>
+                                            <Input
+                                              type="number"
+                                              id={`${vehicle.id}-vehicleLength`}
+                                              value={vehicle.vehicleLength || ""}
+                                              onChange={(e) => updateVehicleBooking(vehicle.id, 'vehicleLength', e.target.value)}
+                                              className="bg-white border-gray-300"
+                                              placeholder="Enter length in feet"
+                                              required
+                                              min="1"
+                                              step="0.1"
+                                            />
+                                            <p className="text-sm text-gray-500 mt-1">
+                                              Price will be calculated based on the length of your vehicle
+                                            </p>
+                                          </div>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+
+                        {/* Navigation */}
+                        <div className="flex justify-end pt-6 border-t border-gray-200">
+                          <Button 
+                            type="button"
+                            onClick={nextStep} 
+                            disabled={!areAllVehiclesValid}
+                            className="bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 px-8 py-2.5"
+                          >
+                            Continue to Services
+                            <ChevronRight size={18} className="ml-2" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* STEP 2 - Date & Time - Spark Ride Style */}
+                    {currentStep === 2 && (
+                      <motion.div
+                        initial="hidden"
+                        animate="visible"
+                        variants={fadeIn}
+                        className="space-y-6"
+                      >
+                        <div className="text-center mb-8">
+                          <div className="w-12 h-12 bg-[#10B5DB]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Package className="h-6 w-6 text-[#10B5DB]" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-gray-900">Service Selection</h2>
+                          <p className="text-gray-600 mt-2">Choose the perfect services for your vehicle</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          {/* Date Picker */}
+                          <div className="space-y-2">
+                            <Label className="text-gray-900 font-medium">Preferred Date *</Label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal h-12 bg-white border-gray-300",
+                                    !formData.date && "text-gray-500"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {formData.date
+                                    ? format(new Date(formData.date), "PPP")
+                                    : "Select a date"}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={formData.date ? new Date(formData.date) : undefined}
+                                  onSelect={handleDateSelect}
+                                  disabled={(date) => {
+                                    const today = new Date();
+                                    today.setHours(0, 0, 0, 0);
+                                    return date < today || date.getDay() === 0;
+                                  }}
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+
+                          {/* Time Picker */}
+                          <div className="space-y-2">
+                            <Label className="text-gray-900 font-medium">Preferred Time *</Label>
+                            <Select
+                              value={formData.timeSlot}
+                              onValueChange={(val) => setFormData(prev => ({ ...prev, timeSlot: val }))}
+                            >
+                              <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900">
+                                <SelectValue placeholder="Select time slot" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {timeSlots.map((slot: string) => (
+                                  <SelectItem key={slot} value={slot}>
+                                    {slot}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between pt-6 border-t border-gray-200">
+                          <Button
+                            type="button"
+                            onClick={prevStep}
+                            variant="outline"
+                            className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                          >
+                            Back
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={nextStep}
+                            className="bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 px-8 py-2.5"
+                            disabled={!formData.date || !formData.timeSlot}
+                          >
+                            Continue to Details
+                            <ChevronRight size={18} className="ml-2" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* STEP 3 - Personal Info - Spark Ride Style */}
+                    {currentStep === 3 && (
+                      <motion.div initial="hidden" animate="visible" variants={fadeIn} className="space-y-6">
+                        <div className="text-center mb-8">
+                          <div className="w-12 h-12 bg-[#10B5DB]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <User className="h-6 w-6 text-[#10B5DB]" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-gray-900">Your Information</h2>
+                          <p className="text-gray-600 mt-2">Finalize your booking details</p>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {/* Personal Information */}
+                          <div className="space-y-4">
+                            <h3 className="font-semibold text-gray-900">Personal Information</h3>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="firstName">First Name *</Label>
+                                <Input 
+                                  id="firstName"
+                                  name="firstName" 
+                                  placeholder="John" 
+                                  value={formData.firstName} 
+                                  onChange={handleChange} 
+                                  required 
+                                  className="bg-white border-gray-300"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="lastName">Last Name</Label>
+                                <Input 
+                                  id="lastName"
+                                  name="lastName" 
+                                  placeholder="Doe" 
+                                  value={formData.lastName} 
+                                  onChange={handleChange} 
+                                  className="bg-white border-gray-300"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="email">Email Address *</Label>
+                                <Input 
+                                  id="email"
+                                  name="email" 
+                                  type="email" 
+                                  placeholder="john@example.com" 
+                                  value={formData.email} 
+                                  onChange={handleChange} 
+                                  required 
+                                  className="bg-white border-gray-300"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="phone">Phone Number *</Label>
+                                <Input
+                                  id="phone"
+                                  name="phone"
+                                  placeholder="+1 (555) 123-4567"
+                                  value={formData.phone}
+                                  onChange={handlePhoneChange}
+                                  required
+                                  className="bg-white border-gray-300"
+                                  maxLength={17}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Location & Scheduling */}
+                          <div className="space-y-4">
+                            <h3 className="font-semibold text-gray-900">Location & Scheduling</h3>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="address">Address *</Label>
+                                <Input 
+                                  id="address"
+                                  name="address" 
+                                  placeholder="123 Main Street" 
+                                  value={formData.address} 
+                                  onChange={handleChange} 
+                                  required 
+                                  className="bg-white border-gray-300"
+                                />
+                              </div>
+                              
+                              <div className="grid grid-cols-3 gap-3">
+                                <div className="space-y-2">
+                                  <Label htmlFor="city">City *</Label>
+                                  <Input
+                                    id="city"
+                                    required
+                                    name="city"
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                    placeholder="City"
+                                    className="bg-white border-gray-300"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="state">State *</Label>
+                                  <Input
+                                    id="state"
+                                    required
+                                    name="state"
+                                    value={formData.state}
+                                    onChange={handleChange}
+                                    placeholder="State"
+                                    className="bg-white border-gray-300"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="zip">ZIP Code *</Label>
+                                  <Input
+                                    id="zip"
+                                    required
+                                    name="zip"
+                                    value={formData.zip}
+                                    onChange={handleChange}
+                                    placeholder="12345"
+                                    className="bg-white border-gray-300"
+                                    maxLength={5}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Additional Notes */}
+                        <div className="space-y-2">
+                          <Label htmlFor="notes">Special Instructions (Optional)</Label>
+                          <Textarea
+                            id="notes"
+                            name="notes"
+                            placeholder="Any special requests or instructions for our team..."
+                            value={formData.notes}
+                            onChange={handleChange}
+                            className="bg-white border-gray-300 min-h-[100px]"
+                          />
+                        </div>
+
+                        {/* Promo Code */}
+                        <div className="border-t border-gray-200 pt-6">
+                          <Label htmlFor="promoCode" className="text-gray-900 font-medium">Promo Code</Label>
+                          <div className="flex gap-3 mt-2">
+                            <Input
+                              id="promoCode"
+                              type="text"
+                              placeholder="Enter promo code"
+                              value={promoCode}
+                              onChange={handlePromoCodeChange}
+                              className="flex-1 bg-white border-gray-300"
+                              disabled={!!appliedPromo}
+                            />
+                            {appliedPromo ? (
+                              <Button
+                                type="button"
+                                onClick={removePromoCode}
+                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2"
+                              >
+                                Remove
+                              </Button>
+                            ) : (
+                              <Button
+                                type="button"
+                                onClick={applyPromoCode}
+                                className="bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 px-4 py-2"
+                                disabled={!promoCode.trim()}
+                              >
+                                Apply Code
+                              </Button>
+                            )}
+                          </div>
+                          {promoError && (
+                            <p className="text-red-600 text-sm mt-2">{promoError}</p>
+                          )}
+                          {appliedPromo && (
+                            <p className="text-green-600 text-sm mt-2">
+                              ✅ Promo code applied! {appliedPromo.discount}% discount
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Booking Summary */}
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                          <h3 className="font-semibold text-lg mb-3 text-gray-900">Booking Summary</h3>
+                          <div className="space-y-4">
+                            {formData.vehicleBookings.map((vehicle, index) => {
+                              const serviceType = serviceTypes.find(st => st.id === vehicle.serviceType);
+                              const mainService = mainServices.find(ms => ms.id === vehicle.mainService);
+                              let selectedPackage;
+                              let vehicleTotal = 0;
+
+                              if (mainService) {
+                                selectedPackage = mainService.packages.find(p => p.id === vehicle.package);
+                              } else if (serviceType?.variants && vehicle.variant) {
+                                const variant = serviceType.variants.find(v => v.id === vehicle.variant);
+                                selectedPackage = variant?.packages.find(p => p.id === vehicle.package);
+                              } else {
+                                selectedPackage = serviceType?.packages?.find(p => p.id === vehicle.package);
+                              }
+
+                              if (selectedPackage) {
+                                let packagePrice = typeof selectedPackage.price === 'string' ? Number(selectedPackage.price) || 0 : selectedPackage.price;
+                                if (selectedPackage.pricingType === "perFoot" && vehicle.vehicleLength) {
+                                  packagePrice *= parseFloat(vehicle.vehicleLength);
+                                }
+                                vehicleTotal += packagePrice;
+                              }
+
+                              return (
+                                <div key={vehicle.id} className="border-b border-gray-200 pb-4 last:border-b-0">
+                                  <h4 className="font-medium mb-2 text-gray-900">Vehicle {index + 1}</h4>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                                    <div>
+                                      <span className="font-medium text-gray-600">Service:</span> 
+                                      <span className="text-gray-900 ml-1">{mainService?.name || serviceType?.name}</span>
+                                      {vehicle.variant && (
+                                        <span className="text-gray-600">
+                                          {" "}({serviceType?.variants?.find(v => v.id === vehicle.variant)?.name})
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <span className="font-medium text-gray-600">Package:</span> 
+                                      <span className="text-gray-900 ml-1">{selectedPackage?.name}</span>
+                                    </div>
+                                    <div>
+                                      <span className="font-medium text-gray-600">Vehicle:</span> 
+                                      <span className="text-gray-900 ml-1">{vehicle.vehicleYear} {vehicle.vehicleMake} {vehicle.vehicleModel}</span>
+                                    </div>
+                                    <div>
+                                      <span className="font-medium text-gray-600">Color:</span> 
+                                      <span className="text-gray-900 ml-1">{vehicle.vehicleColor}</span>
+                                    </div>
+                                    {vehicle.additionalServices.length > 0 && (
+                                      <div className="md:col-span-2">
+                                        <span className="font-medium text-gray-600">Add-ons:</span> 
+                                        <span className="text-gray-900 ml-1">{vehicle.additionalServices.length} service(s)</span>
+                                      </div>
+                                    )}
+                                    <div className="md:col-span-2 text-right font-medium text-gray-900">
+                                      Vehicle Total: ${vehicleTotal.toFixed(2)}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+
+                            {/* Promo Code Discount Display */}
+                            {appliedPromo && (
+                              <>
+                                <div className="flex justify-between text-green-600">
+                                  <span>Promo Code ({appliedPromo.code}):</span>
+                                  <span>-{appliedPromo.discount}%</span>
+                                </div>
+                                <div className="flex justify-between text-green-600">
+                                  <span>Discount Amount:</span>
+                                  <span>-${calculateDiscount().toFixed(2)}</span>
+                                </div>
+                              </>
+                            )}
+
+                            <div className="flex justify-between font-semibold text-lg border-t border-gray-200 pt-2">
+                              <span className="text-gray-900">Total ({formData.vehicleBookings.length} vehicles):</span>
+                              <span className="text-[#10B5DB]">${calculateFinalPrice().toFixed(2)}</span>
+                            </div>
+
+                            {appliedPromo && (
+                              <p className="text-sm text-gray-600 mt-1">
+                                * Original price: ${calculateTotalPrice().toFixed(2)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Submit */}
+                        <div className="flex justify-between pt-6 border-t border-gray-200">
+                          <Button
+                            type="button"
+                            onClick={prevStep}
+                            variant="outline"
+                            className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                          >
+                            Back
+                          </Button>
+                          <Button
+                            type="submit"
+                            className="bg-[#10B5DB] hover:bg-[#10B5DB]/90 text-white px-8 py-2.5 flex items-center"
+                            disabled={
+                              isSubmitting ||
+                              !formData.firstName ||
+                              !formData.lastName ||
+                              !formData.email ||
+                              !formData.phone ||
+                              !formData.address ||
+                              !formData.city ||
+                              !formData.state ||
+                              !formData.zip
+                            }
+                          >
+                            {isSubmitting ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                Processing...
+                              </>
+                            ) : (
+                              "Confirm Booking"
+                            )}
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </form>
               </div>
             </div>
-          )}
-        </form>
+          </div>
+        </div>
       </div>
 
-      {/* Confirmation Dialog */}
+      {/* Confirmation Dialog - Spark Ride Style */}
       {showConfirmation && (
         <Dialog open={showConfirmation} onOpenChange={closeConfirmation}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-center text-2xl">
-                Booking Confirmed!
+          <DialogContent className="sm:max-w-lg bg-white border border-gray-200 text-gray-900 shadow-lg rounded-xl">
+            <DialogHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-24 h-24 bg-gradient-to-br from-[#10B5DB]/10 to-[#10B5DB]/5 rounded-full flex items-center justify-center p-4 border border-[#10B5DB]/20">
+                  <Sparkles className="h-12 w-12 text-[#10B5DB]" />
+                </div>
+              </div>
+              
+              <DialogTitle className="text-2xl font-bold text-gray-900 text-center">
+                Booking Confirmed! 🎉
               </DialogTitle>
-              <DialogDescription className="text-center">
-                Thank you for booking with {WEBSITE_NAME}.
+              <DialogDescription className="text-gray-600 text-center mt-2">
+                Thank you <span className="font-semibold text-gray-900">{formData.firstName}</span>!
+                Your booking has been successfully scheduled.
               </DialogDescription>
             </DialogHeader>
-            <div className="p-6 space-y-4">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                <p className="text-lg font-semibold">Booking ID: {bookingId}</p>
-                <p className="text-lg mt-2">Your appointment details:</p>
-                <p className="font-medium">
-                  {formData.date ? format(new Date(formData.date), "PPP") : ""}{" "}
-                  at {formData.timeSlot}
-                </p>
-                <p>
-                  {formData.vehicleBookings.length} vehicle(s) booked
-                </p>
+
+            <div className="mt-6 border border-gray-200 rounded-lg bg-gray-50 p-6">
+              <h3 className="text-lg font-semibold mb-4 text-center text-gray-900">Appointment Details</h3>
+              <div className="grid grid-cols-2 gap-y-3 text-sm">
+                <span className="font-medium text-gray-600">Vehicles:</span>
+                <span className="text-right text-gray-900">
+                  {formData.vehicleBookings.map(v => `${v.vehicleYear} ${v.vehicleMake} ${v.vehicleModel}`).join(", ")}
+                </span>
+                <span className="font-medium text-gray-600">Date:</span>
+                <span className="text-right text-gray-900">
+                  {formData.date ? new Date(formData.date).toLocaleDateString() : "N/A"}
+                </span>
+                <span className="font-medium text-gray-600">Time Slot:</span>
+                <span className="text-right text-gray-900">{formData.timeSlot || "N/A"}</span>
+                <span className="font-medium text-gray-600">Services:</span>
+                <span className="text-right text-gray-900">
+                  {formData.vehicleBookings.flatMap(v => {
+                    const serviceType = serviceTypes.find(st => st.id === v.serviceType);
+                    const mainService = mainServices.find(ms => ms.id === v.mainService);
+                    return mainService?.name || serviceType?.name || "";
+                  }).filter(Boolean).join(", ")}
+                </span>
+                <span className="font-medium text-gray-600">Subtotal:</span>
+                <span className="text-right text-gray-900">${calculateTotalPrice().toFixed(2)}</span>
                 {appliedPromo && (
-                  <p className="text-green-600">
-                    Promo applied: {appliedPromo.code} ({appliedPromo.discount}% off)
-                  </p>
+                  <>
+                    <span className="font-medium text-green-600">Promo Discount:</span>
+                    <span className="text-right text-green-600">-${calculateDiscount().toFixed(2)}</span>
+                  </>
                 )}
+                <span className="font-medium text-gray-900">Total:</span>
+                <span className="font-bold text-[#10B5DB] text-right text-lg">${calculateFinalPrice().toFixed(2)}</span>
               </div>
-              <p className="text-sm text-center text-gray-600">
-                A confirmation email has been sent to {formData.email}.
-              </p>
             </div>
-            <DialogFooter className="flex justify-center">
-              <Link href="/">
-                <Button
-                  className="ml-2 bg-sky-500 hover:bg-sky-500 text-white px-6 py-2 rounded"
-                >
-                  Return To Home
-                </Button>
-              </Link>
-            </DialogFooter>
+
+            <div className="mt-6">
+              <Button
+                onClick={closeConfirmation}
+                className="w-full bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 transition-all duration-300 font-semibold shadow-sm hover:shadow-md"
+              >
+                Return to Home
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       )}

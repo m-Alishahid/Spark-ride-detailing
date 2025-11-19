@@ -14,30 +14,6 @@ export default function HeroSection() {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.2,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: [0.4, 0, 0.2, 1]
-      }
-    }
-  };
-
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       {/* Background Image with Light Overlay */}
@@ -55,13 +31,15 @@ export default function HeroSection() {
       {/* Content */}
       <motion.div
         className="relative z-10 container mx-auto px-6 text-center space-y-8"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
       >
         <motion.h1
           className="text-5xl md:text-7xl lg:text-8xl font-extrabold leading-tight font-['Poppins']"
-          variants={itemVariants}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
         >
           <span className="text-foreground block">Spark Your Ride,</span>
           <span className="text-primary-blue block">Shine Bright!</span>
@@ -69,7 +47,9 @@ export default function HeroSection() {
 
         <motion.p
           className="text-lg md:text-xl lg:text-2xl text-foreground-secondary max-w-4xl mx-auto leading-relaxed font-['Inter'] font-light"
-          variants={itemVariants}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
         >
           Transform your vehicle into a showroom masterpiece with our comprehensive car wash, detailing, and ceramic coating services.
           Experience the ultimate in automotive care with eco-friendly products and certified professionals.
@@ -78,7 +58,9 @@ export default function HeroSection() {
         {/* Buttons */}
         <motion.div
           className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-          variants={itemVariants}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
         >
           <motion.div
             whileHover={{ scale: 1.05 }}

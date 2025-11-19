@@ -1,136 +1,360 @@
 "use client";
 
 import React from 'react';
-import Link from 'next/link';
-import { useEffect, useRef } from 'react';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import { Star, Shield, Sparkles, Quote } from "lucide-react";
 
+const TestimonialsSection = () => {
+  const testimonials = [
+    {
+      id: 1,
+      name: "Sarah Johnson",
+      role: "BMW Owner",
+      rating: 5,
+      comment: "Spark Ride transformed my car! The ceramic coating looks incredible and the mobile service saved me so much time. Highly recommended!",
+      image: "/pictures/avatar1.jpg",
+      service: "Ceramic Coating",
+      beforeAfter: "/pictures/CeramicCoatingAfter.png"
+    },
+    {
+      id: 2,
+      name: "Mike Chen",
+      role: "Tesla Model 3 Owner",
+      rating: 5,
+      comment: "The window tinting service was professional and precise. My car stays cool even in peak summer. Excellent workmanship!",
+      image: "/pictures/avatar2.jpg",
+      service: "Window Tinting",
+      beforeAfter: "/pictures/WindowTinting.jpg"
+    },
+    {
+      id: 3,
+      name: "Emily Rodriguez",
+      role: "Mercedes Owner",
+      rating: 5,
+      comment: "Best detailing service I&apos;ve ever used! They came to my office and made my car look brand new. Worth every penny!",
+      image: "/pictures/avatar3.jpg",
+      service: "Full Detailing",
+      beforeAfter: "/pictures/CarDetailing.jpg"
+    },
+    {
+      id: 4,
+      name: "David Thompson",
+      role: "Audi Q7 Owner",
+      rating: 5,
+      comment: "The paint correction work is phenomenal. Scratches I thought were permanent are completely gone. Amazing results!",
+      image: "/pictures/avatar4.jpg",
+      service: "Paint Correction",
+      beforeAfter: "/pictures/ExteriorCleaningAfter.png"
+    },
+    {
+      id: 5,
+      name: "Lisa Wang",
+      role: "Porsche Owner",
+      rating: 5,
+      comment: "Professional, punctual, and perfectionists! My Porsche has never looked better. Will definitely use their services again.",
+      image: "/pictures/avatar5.jpg",
+      service: "Premium Detailing",
+      beforeAfter: "/pictures/SedanCarDetailing.jpeg"
+    },
+    {
+      id: 6,
+      name: "James Wilson",
+      role: "Ford F-150 Owner",
+      rating: 5,
+      comment: "The interior detailing brought my truck back to life. They removed stains I thought were permanent. Outstanding service!",
+      image: "/pictures/avatar6.jpg",
+      service: "Interior Detailing",
+      beforeAfter: "/pictures/InteriorCleaningAfter.png"
+    }
+  ];
 
-const services = [
-  {
-    id: 'mobile-detailing',
-    title: 'Mobile Detailing',
-    description: 'Our comprehensive mobile detailing service brings the car wash to you. From exterior washing to interior cleaning, we ensure your vehicle looks its best.',
-    // image: 'https://images.unsplash.com/photo-1502877338535-766e1452684a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    image: '/pictures/CarDetailing.jpg',
-    link: '/services/mobile-detailing'
-  },
-  {
-    id: 'window-tint',
-    title: 'Window Tint',
-    description: 'Enhance privacy, reduce heat, and protect your interior with our professional window tinting services using high-quality films.',
-    image: '/pictures/WindowTint.jpg',
-    link: '/services/window-tint'
-  },
-  {
-    id: 'ceramic-coating',
-    title: 'Ceramic Coating',
-    description: 'Protect your vehicle\'s paint with our long-lasting ceramic coating that provides exceptional gloss, durability, and hydrophobic properties.',
-    // image: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    image: '/pictures/CeramicCoating.jpg',
-    link: '/services/ceramic-coating'
-  }
-];
+  const packages = [
+    {
+      id: 1,
+      title: "Luxury Car Detailing",
+      price: "From $129",
+      description: "Transform your ride with deep interior cleaning and a mirror-gloss exterior finish — right at your doorstep.",
+      features: [
+        "Full Interior Shampoo & Vacuum",
+        "Engine Bay & Wheel Deep Clean",
+        "Hand Wax & Paint Protection",
+        "Door Jamb & Trim Restoration",
+      ],
+      image: "/pictures/CarDetailing.jpg",
+      icon: <Star className="w-6 h-6 text-[#10B5DB]" />,
+      badge: "Most Popular",
+      badgeColor: "bg-[#10B5DB]",
+    },
+    {
+      id: 2,
+      title: "Premium Window Tinting",
+      price: "From $249",
+      description: "Stay cool and stylish with our high-performance tint films that offer UV defense and privacy protection.",
+      features: [
+        "99% UV & Heat Blockage",
+        "Enhanced Night Visibility",
+        "Scratch-Resistant Nano Film",
+        "Factory Finish Guarantee",
+      ],
+      image: "/pictures/WindowTinting.jpg",
+      icon: <Shield className="w-6 h-6 text-[#10B5DB]" />,
+      badge: "Best Seller",
+      badgeColor: "bg-[#10B5DB]",
+    },
+    {
+      id: 3,
+      title: "Elite Ceramic Coating",
+      price: "From $699",
+      description: "Shield your vehicle with advanced 9H ceramic technology that locks in a glossy, hydrophobic shine for years.",
+      features: [
+        "Long-Lasting 5-Year Protection",
+        "Water & Dirt Repellent Coating",
+        "UV Fade Resistance",
+        "Gloss Enhancement Finish",
+      ],
+      image: "/pictures/CeramicCoating.jpg",
+      icon: <Sparkles className="w-6 h-6 text-[#10B5DB]" />,
+      badge: "Premium",
+      badgeColor: "bg-[#10B5DB]",
+    },
+  ];
 
-const ServicesSection = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const descriptionRef = useRef<HTMLParagraphElement>(null);
-  const buttonRef = useRef<HTMLAnchorElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const elements = sectionRef.current?.querySelectorAll('.fade-in, .bounce-in');
-    elements?.forEach(el => observer.observe(el));
-
-    // Observe specific refs
-    if (titleRef.current) observer.observe(titleRef.current);
-    if (descriptionRef.current) observer.observe(descriptionRef.current);
-    if (buttonRef.current) observer.observe(buttonRef.current);
-
-    return () => {
-      elements?.forEach(el => observer.unobserve(el));
-      if (titleRef.current) observer.unobserve(titleRef.current);
-      if (descriptionRef.current) observer.unobserve(descriptionRef.current);
-      if (buttonRef.current) observer.unobserve(buttonRef.current);
-    };
-  }, []);
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+      />
+    ));
+  };
 
   return (
-    <section id="services" className="py-20 bg-white" ref={sectionRef}>
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 ref={titleRef} className="text-3xl lg:text-4xl font-bold mb-4 slide-up">Our <span className="text-skyblue bounce-in" style={{ animationDelay: '0.3s' }}>Professional</span> Services</h2>
-          <p ref={descriptionRef} className="text-gray-600 max-w-2xl mx-auto slide-up" style={{ animationDelay: '0.2s' }}>
-            We offer a variety of detailing services to keep your vehicle looking its best,
-            from basic washing to premium treatments that protect your investment.
-          </p>
-        </div>
+    <section className="py-24 bg-gradient-to-br from-white to-gray-50/50">
+      {/* Testimonials Section */}
+      <div className="container mx-auto px-4 mb-24">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <motion.div 
+            className="inline-flex items-center gap-2 text-[#10B5DB] mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            <div className="w-8 h-0.5 bg-[#10B5DB]"></div>
+            Customer Reviews
+            <div className="w-8 h-0.5 bg-[#10B5DB]"></div>
+          </motion.div>
+          
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+            What Our <span className="text-[#10B5DB]">Customers</span> Say
+          </h2>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-gray-600 max-w-3xl mx-auto leading-relaxed text-lg"
+          >
+            Don&apos;t just take our word for it. Here&apos;s what our satisfied customers have to say about their Spark Ride experience.
+          </motion.p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {services.map((service, index) => (
+        {/* Testimonials Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {testimonials.map((testimonial, index) => (
             <motion.div
-              key={service.id}
-              className="bg-card rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl border aspect-[4/3] p-8 flex flex-col"
-              initial={{ opacity: 0, y: 30 }}
+              key={testimonial.id}
+              className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-3 border border-gray-100"
+              initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
-              whileHover={{ scale: 1.05, y: -10 }}
             >
-              <div className="relative h-48 overflow-hidden rounded-lg mb-6">
-                <Image
-                  src={service.image}
-                  alt={service.title}
-                  fill
-                  className="object-cover transition-transform hover:scale-105"
-                />
+              {/* Quote Icon */}
+              <div className="absolute top-6 right-6 text-[#10B5DB]/20">
+                <Quote className="w-8 h-8" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold mb-3 text-foreground">{service.title}</h3>
-                <p className="text-muted-foreground mb-4 leading-relaxed">{service.description}</p>
-                <Link
-                  href={service.link}
-                  className="text-primary font-medium flex items-center hover:text-primary/80 transition-colors group"
-                >
-                  Learn More
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
+
+              {/* Content */}
+              <div className="p-6">
+                {/* Rating */}
+                <div className="flex items-center gap-1 mb-4">
+                  {renderStars(testimonial.rating)}
+                </div>
+
+                {/* Comment */}
+                <p className="text-gray-700 mb-6 leading-relaxed italic">
+                &quot;{testimonial.comment}&quot;
+                </p>
+
+                {/* Customer Info */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#10B5DB] to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                    {testimonial.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
+                    <p className="text-gray-600 text-sm">{testimonial.role}</p>
+                    <p className="text-[#10B5DB] text-sm font-medium">{testimonial.service}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Before/After Image */}
+              <div className="relative h-32 overflow-hidden">
+                <Image
+                  src={testimonial.beforeAfter}
+                  alt={`${testimonial.service} result`}
+                  width={400}
+                  height={128}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                <div className="absolute bottom-3 left-4 text-white text-sm font-medium">
+                  Result
+                </div>
               </div>
             </motion.div>
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+        {/* Stats Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="bg-gradient-to-r from-[#10B5DB] to-blue-600 rounded-3xl p-8 text-white text-center"
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <div className="text-3xl md:text-4xl font-bold mb-2">500+</div>
+              <div className="text-blue-100">Happy Customers</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold mb-2">4.9/5</div>
+              <div className="text-blue-100">Average Rating</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold mb-2">100%</div>
+              <div className="text-blue-100">Satisfaction</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold mb-2">5+</div>
+              <div className="text-blue-100">Years Experience</div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Packages Section */}
+      <div className="container mx-auto px-4">
+        {/* Packages Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <motion.div 
+            className="inline-flex items-center gap-2 text-[#10B5DB] mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <Link
-              ref={buttonRef}
-              href="/booking"
-              className="bg-gradient-to-r from-primary to-blue-500 text-primary-foreground px-8 py-3 rounded-full inline-block font-medium shadow-2xl hover:shadow-3xl transform transition-all duration-300"
-            >
-              Book A Service Now
-            </Link>
+            <div className="w-8 h-0.5 bg-[#10B5DB]"></div>
+            Premium Packages
+            <div className="w-8 h-0.5 bg-[#10B5DB]"></div>
           </motion.div>
+          
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+            Our <span className="text-[#10B5DB]">Packages</span>
+          </h2>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-gray-600 max-w-3xl mx-auto leading-relaxed text-lg"
+          >
+            Choose the perfect package to give your car the luxury care it deserves &mdash; with our expert team and professional-grade products.
+          </motion.p>
+        </motion.div>
+
+        {/* Packages Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {packages.map((pkg, index) => (
+            <motion.div
+              key={pkg.id}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: index * 0.2 }}
+              className="group relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden hover:-translate-y-3 border border-gray-100"
+            >
+              {/* Badge */}
+              <div className={`absolute top-4 right-4 z-20 ${pkg.badgeColor} text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg`}>
+                {pkg.badge}
+              </div>
+
+              {/* Image */}
+              <div className="relative h-48 overflow-hidden">
+                <Image
+                  src={pkg.image}
+                  alt={pkg.title}
+                  width={400}
+                  height={192}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                <div className="absolute top-4 left-4 z-10 p-3 rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg">
+                  {pkg.icon}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  {pkg.title}
+                </h3>
+                <p className="text-gray-600 mb-4 leading-relaxed">
+                  {pkg.description}
+                </p>
+                
+                {/* Features */}
+                <ul className="space-y-3 mb-6">
+                  {pkg.features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-[#10B5DB] rounded-full flex-shrink-0"></div>
+                      <span className="text-gray-600 text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Price + Button */}
+                <div className="flex items-center justify-between">
+                  <span className="text-[#10B5DB] font-extrabold text-2xl">
+                    {pkg.price}
+                  </span>
+                  <Link
+                    href="/booking"
+                    className="bg-[#10B5DB] text-white px-6 py-3 rounded-2xl font-semibold hover:bg-[#0E9AC3] transition-all duration-300 hover:scale-105 shadow-lg"
+                  >
+                    Book Now
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
   );
 };
 
-export default ServicesSection;
+export default TestimonialsSection;

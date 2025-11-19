@@ -3,126 +3,109 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import serviceimage1 from '../../public/pictures/service-1.jpg'; // Adjust the path as necessary
-import serviceimage2 from '../../public/pictures/service-2.jpg'; // Adjust the path as necessary  
-import leatherImage from '../../public/pictures/DecentAutoDetailing/Leather Treatment.jpg'; // Adjust the path as necessary
-import ceramicImage from '../../public/pictures/DecentAutoDetailing/Ceramic Coating.jpg'; // Adjust the path as necessary 
-import interiorImage from '../../public/pictures/DecentAutoDetailing/Interior Cleaning.jpg'; // Adjust the path as necessary
-import paintCorrectionImage from '../../public/pictures/DecentAutoDetailing/Paint Correction.png'
-import showroomShineImage from '../../public/pictures/DecentAutoDetailing/Showroom Shine.jpg'
-import windowTint from '../../public/pictures/DecentAutoDetailing/Window Treatment.png'
-import exteriorWash from '../../public/pictures/DecentAutoDetailing/Full Exterior Detail.jpg'
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, X, Filter } from 'lucide-react';
 
 const galleryImages = [
   {
     id: 1,
-    src: serviceimage2,
-    // src: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    // src: exteriorImage,
+    src: '/pictures/CarDetailing.jpg',
     category: 'exterior',
-    title: 'Full Exterior Detail'
+    title: 'Full Exterior Detail',
+    description: 'Complete exterior wash, wax, and protection'
   },
   {
     id: 2,
-    // src: 'https://images.unsplash.com/photo-1616455579100-2ceaa4eb2d37?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    src: paintCorrectionImage,
+    src: '/pictures/ExteriorCleaningAfter.png',
     category: 'exterior',
-    title: 'Paint Correction'
+    title: 'Paint Correction',
+    description: 'Removing swirl marks and restoring paint clarity'
   },
   {
     id: 3,
-    // src: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    src: interiorImage,
+    src: '/pictures/InteriorCleaningAfter.png',
     category: 'interior',
-    title: 'Interior Detailing'
+    title: 'Interior Detailing',
+    description: 'Deep cleaning and conditioning of all interior surfaces'
   },
   {
     id: 4,
-    // src: 'https://images.unsplash.com/photo-1580274455191-1c62238fa333?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    src: showroomShineImage,
+    src: '/pictures/CarWash.jpg',
     category: 'exterior',
-    title: 'Showroom Shine'
+    title: 'Showroom Shine',
+    description: 'Premium polishing for that perfect mirror finish'
   },
   {
     id: 5,
-    // src: 'https://images.unsplash.com/photo-1499062918700-389fa905494e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    src: windowTint,
+    src: '/pictures/WindowTinting.jpg',
     category: 'window-tint',
-    title: 'Window Tinting'
+    title: 'Window Tinting',
+    description: 'Professional window film installation'
   },
   {
     id: 6,
-    // src: windowTintImage,
-    // src: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    src: ceramicImage,
+    src: '/pictures/CeramicCoating.jpg',
     category: 'ceramic',
-    title: 'Ceramic Coating'
+    title: 'Ceramic Coating',
+    description: 'Long-lasting protection with nano-ceramic technology'
   },
   {
     id: 7,
-    // src: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    src: exteriorWash,
+    src: '/pictures/ExteriorCleaningBefore.png',
     category: 'exterior',
-    title: 'Exterior Wash'
+    title: 'Exterior Wash',
+    description: 'Thorough cleaning with premium products'
   },
   {
     id: 8,
-    // src: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    src: leatherImage,
+    src: '/pictures/SUVInteriorCleaning.jpg',
     category: 'interior',
-    title: 'Leather Treatment'
+    title: 'Leather Treatment',
+    description: 'Specialized care for leather surfaces'
   },
   {
     id: 9,
-    // src: 'https://images.unsplash.com/photo-1502877338535-766e1452684a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    src: serviceimage1,
+    src: '/pictures/CeramicCoatingAfter.png',
     category: 'ceramic',
-    title: 'Paint Protection'
+    title: 'Paint Protection',
+    description: 'Advanced coating for ultimate durability'
   },
   {
     id: 10,
-    src: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    src: '/pictures/SedanDetailingWash.jpeg',
     category: 'exterior',
-    title: 'Professional Detailing'
+    title: 'Professional Detailing',
+    description: 'Comprehensive detailing package'
   },
   {
     id: 11,
-    src: 'https://images.unsplash.com/photo-1575844611398-2a68400b437c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    src: '/pictures/InteriorTruckCleaning.png',
     category: 'interior',
-    title: 'Interior Cleaning'
+    title: 'Interior Cleaning',
+    description: 'Complete interior sanitization and cleaning'
   },
   {
     id: 12,
-    src: 'https://images.unsplash.com/photo-1502161254066-6c74afbf07aa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    src: '/pictures/TintedAutoGlass.jpg',
     category: 'window-tint',
-    title: 'Window Treatment'
+    title: 'Window Treatment',
+    description: 'UV protection and heat rejection films'
   }
+];
+
+const categories = [
+  { id: 'all', name: 'All Services', count: galleryImages.length },
+  { id: 'exterior', name: 'Exterior Detailing', count: galleryImages.filter(img => img.category === 'exterior').length },
+  { id: 'interior', name: 'Interior Detailing', count: galleryImages.filter(img => img.category === 'interior').length },
+  { id: 'ceramic', name: 'Ceramic Coating', count: galleryImages.filter(img => img.category === 'ceramic').length },
+  { id: 'window-tint', name: 'Window Tinting', count: galleryImages.filter(img => img.category === 'window-tint').length }
 ];
 
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeImage, setActiveImage] = useState<number | null>(null);
-  
-  useEffect(() => {
-    // Animation on scroll
-    const handleScroll = () => {
-      const elements = document.querySelectorAll('.fade-in');
-      elements.forEach(element => {
-        const elementTop = element.getBoundingClientRect().top;
-        const elementHeight = element.getBoundingClientRect().height;
-        
-        if (elementTop < window.innerHeight - elementHeight / 2) {
-          element.classList.add('visible');
-        }
-      });
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const filteredImages = selectedCategory === 'all' 
     ? galleryImages 
@@ -153,160 +136,249 @@ const Gallery = () => {
     setActiveImage(filteredImages[newIndex].id);
   };
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeImage === null) return;
+      
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight') navigateModal('next');
+      if (e.key === 'ArrowLeft') navigateModal('prev');
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeImage, navigateModal]); // Fixed: added navigateModal dependency
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-white">
       <Navbar />
       
       <div className="pt-24 pb-16 flex-grow">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-10">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 fade-in">Our Work Gallery</h1>
-            <p className="text-gray-600 max-w-3xl mx-auto fade-in">
-              Browse through our gallery to see examples of our detailing transformations.
-              From interior deep cleans to exterior shine and ceramic coating, we take pride in our work.
+          {/* Header Section */}
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 font-['Poppins']">
+              <span className="text-gray-900">Our</span>{' '}
+              <span className="text-[#10B5DB]">Gallery</span>
+            </h1>
+            <p className="text-gray-600 max-w-3xl mx-auto leading-relaxed text-lg font-['Inter']">
+              Witness the transformation! Browse through our portfolio of premium car detailing work. 
+              Each image tells a story of dedication, precision, and the Spark Ride standard of excellence.
             </p>
-          </div>
-          
-          <div className="flex justify-center mb-8 overflow-x-auto fade-in">
-            <div className="flex space-x-2 p-1">
+          </motion.div>
+
+          {/* Filter Section */}
+          <motion.div 
+            className="mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {/* Mobile Filter Button */}
+            <div className="md:hidden flex justify-center mb-4">
               <button
-                onClick={() => setSelectedCategory('all')}
-                className={`px-4 py-2 rounded-full text-sm ${
-                  selectedCategory === 'all' 
-                    ? 'bg-sky-500 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className="flex items-center gap-2 bg-[#10B5DB] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#0E9AC3] transition-all duration-300"
               >
-                All
-              </button>
-              <button
-                onClick={() => setSelectedCategory('exterior')}
-                className={`px-4 py-2 rounded-full text-sm ${
-                  selectedCategory === 'exterior' 
-                    ? 'bg-sky-500 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Exterior Detailing
-              </button>
-              <button
-                onClick={() => setSelectedCategory('interior')}
-                className={`px-4 py-2 rounded-full text-sm ${
-                  selectedCategory === 'interior' 
-                    ? 'bg-sky-500 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Interior Detailing
-              </button>
-              <button
-                onClick={() => setSelectedCategory('ceramic')}
-                className={`px-4 py-2 rounded-full text-sm ${
-                  selectedCategory === 'ceramic' 
-                    ? 'bg-sky-500 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Ceramic Coating
-              </button>
-              <button
-                onClick={() => setSelectedCategory('window-tint')}
-                className={`px-4 py-2 rounded-full text-sm ${
-                  selectedCategory === 'window-tint' 
-                    ? 'bg-sky-500 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Window Tinting
+                <Filter size={20} />
+                Filter Services
               </button>
             </div>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredImages.map((image, index) => (
-              <div 
-                key={image.id} 
-                className="relative overflow-hidden rounded-xl shadow-md cursor-pointer group fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
+
+            {/* Category Filters */}
+            <div className={`${isFilterOpen ? 'block' : 'hidden'} md:block`}>
+              <div className="flex flex-wrap justify-center gap-3">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => {
+                      setSelectedCategory(category.id);
+                      setIsFilterOpen(false);
+                    }}
+                    className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${
+                      selectedCategory === category.id
+                        ? 'bg-[#10B5DB] text-white shadow-lg shadow-blue-200'
+                        : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-[#10B5DB] hover:text-[#10B5DB] hover:shadow-md'
+                    }`}
+                  >
+                    {category.name}
+                    <span className={`text-sm px-2 py-1 rounded-full ${
+                      selectedCategory === category.id
+                        ? 'bg-white text-[#10B5DB]'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {category.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Gallery Grid */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
+            {filteredImages.map((image) => (
+              <motion.div
+                key={image.id}
+                variants={itemVariants}
+                className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden cursor-pointer hover:-translate-y-2"
                 onClick={() => openModal(image.id)}
               >
-                <Image 
-                  src={image.src} 
-                  alt={image.title} 
-                  width={400}
-                  height={256}
-                  className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-darkblack bg-opacity-0 flex items-center justify-center transition-all duration-300 group-hover:bg-opacity-50">
-                  <div className="opacity-0 transform translate-y-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 text-center">
-                    <span className="text-white font-medium px-4 py-2 rounded-full border border-white">
-                      View Image
-                    </span>
-                    <h3 className="text-white font-medium mt-2">{image.title}</h3>
+                {/* Image Container */}
+                <div className="relative h-64 overflow-hidden">
+                  <Image 
+                    src={image.src} 
+                    alt={image.title} 
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  
+                  {/* Overlay Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  {/* Content Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                    <h3 className="text-white font-bold text-lg mb-2 font-['Poppins']">
+                      {image.title}
+                    </h3>
+                    <p className="text-gray-200 text-sm font-['Inter']">
+                      {image.description}
+                    </p>
+                  </div>
+
+                  {/* View Button */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 border border-white/30">
+                      <span className="text-white font-semibold text-sm">View Details</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
+
+          {/* Empty State */}
+          {filteredImages.length === 0 && (
+            <motion.div 
+              className="text-center py-16"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <div className="text-gray-400 text-6xl mb-4">📷</div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">No images found</h3>
+              <p className="text-gray-500">Try selecting a different category</p>
+            </motion.div>
+          )}
         </div>
       </div>
       
       {/* Image Modal */}
-      {activeImage !== null && (
-        <div className="fixed inset-0 z-50 bg-gray-900 bg-opacity-90 flex items-center justify-center p-4">
-          <div className="relative w-full max-w-5xl">
-            <button 
-              onClick={closeModal}
-              className="absolute -top-12 right-0 text-white hover:text-skyblue"
+      <AnimatePresence>
+        {activeImage !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+            onClick={closeModal}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-6xl"
+              onClick={(e) => e.stopPropagation()}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            
-            <div className="relative">
-              {filteredImages.map((image) => (
-                image.id === activeImage && (
-                  <div key={image.id} className="relative">
-                    <Image 
-                      src={image.src} 
-                      alt={image.title} 
-                      width={800}
-                      height={600}
-                      className="w-full object-contain max-h-[80vh]"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-darkblack bg-opacity-70 p-4">
-                      <h3 className="text-white font-medium text-lg">{image.title}</h3>
-                    </div>
-                  </div>
-                )
-              ))}
-            </div>
-            
-            <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-12">
+              {/* Close Button */}
+              <button 
+                onClick={closeModal}
+                className="absolute -top-16 right-0 text-white hover:text-[#10B5DB] transition-colors duration-300 z-10"
+              >
+                <X size={32} />
+              </button>
+              
+              {/* Navigation Buttons */}
               <button 
                 onClick={() => navigateModal('prev')}
-                className="text-white hover:text-skyblue p-2"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-[#10B5DB] transition-colors duration-300 bg-black/50 rounded-full p-3"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+                <ChevronLeft size={32} />
               </button>
-            </div>
-            
-            <div className="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-12">
+              
               <button 
                 onClick={() => navigateModal('next')}
-                className="text-white hover:text-skyblue p-2"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-[#10B5DB] transition-colors duration-300 bg-black/50 rounded-full p-3"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                <ChevronRight size={32} />
               </button>
-            </div>
-          </div>
-        </div>
-      )}
+
+              {/* Image Content */}
+              <div className="relative">
+                {filteredImages.map((image) => (
+                  image.id === activeImage && (
+                    <div key={image.id} className="relative">
+                      <Image 
+                        src={image.src} 
+                        alt={image.title} 
+                        width={1200}
+                        height={800}
+                        className="w-full object-contain max-h-[80vh] rounded-2xl"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-8 rounded-b-2xl">
+                        <h3 className="text-white font-bold text-2xl mb-2 font-['Poppins']">
+                          {image.title}
+                        </h3>
+                        <p className="text-gray-300 text-lg font-['Inter']">
+                          {image.description}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                ))}
+              </div>
+
+              {/* Image Counter */}
+              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-white text-center">
+                <span className="text-sm text-gray-400">
+                  {filteredImages.findIndex(img => img.id === activeImage) + 1} of {filteredImages.length}
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       <Footer />
     </div>

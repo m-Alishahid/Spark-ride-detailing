@@ -12,7 +12,7 @@ export type VehicleService = {
   interior?: Record<string, ServicePackage> | ServicePackage;
   exterior?: Record<string, ServicePackage> | ServicePackage;
   full: Record<string, ServicePackage> | ServicePackage;
-  [key: string]: any; // Allow string indexing
+  [key: string]: Record<string, ServicePackage> | ServicePackage | undefined; // Fixed: specific types instead of any
 };
 
 export const service: Record<string, VehicleService> = {
@@ -822,8 +822,17 @@ export const serviceTypes = [
   },
 ];
 
+// Define FormData interface for calculateTotalPrice
+interface FormData {
+  vehicleType: string;
+  packageType: string;
+  extraService?: string;
+  vehicleSize?: number;
+  additionalServices?: string[];
+}
+
 // ---------------- Price Calculation ----------------
-export const calculateTotalPrice = (formData: any) => {
+export const calculateTotalPrice = (formData: FormData): number => {
   let total = 0;
   const { vehicleType, packageType, extraService, vehicleSize, additionalServices: addons } = formData;
 
@@ -908,20 +917,10 @@ export const calculatePrice = (
   return typeof calculated === 'number' && !isNaN(calculated) ? calculated : 0;
 };
 
-
-
-
-
-
-
-
-
-// Add this to your src/utils/services.js file
-
 // ---------------- Enhanced Main Services ----------------
 export const enhancedMainServices = [
   {
-    id: "detailing",
+    id: "mobile-detailing",
     title: "Premium Detailing",
     description: "Complete interior and exterior detailing services to restore your vehicle's showroom shine",
     icon: "✨",
@@ -935,7 +934,7 @@ export const enhancedMainServices = [
     popular: true
   },
   {
-    id: "ceramiccoating",
+    id: "ceramic-coating",
     title: "Ceramic Coating",
     description: "Long-lasting protection with advanced ceramic technology for superior gloss and durability",
     icon: "🔮",
@@ -949,7 +948,7 @@ export const enhancedMainServices = [
     popular: false
   },
   {
-    id: "windowtinting",
+    id: "window-tinting",
     title: "Window Tinting",
     description: "Professional window tinting for privacy, UV protection, and enhanced comfort",
     icon: "🌅",
@@ -963,7 +962,7 @@ export const enhancedMainServices = [
     popular: false
   },
   {
-    id: "paintcorrection",
+    id: "paint-correction",
     title: "Paint Correction",
     description: "Remove swirl marks, scratches, and imperfections for flawless paint finish",
     icon: "🎨",
