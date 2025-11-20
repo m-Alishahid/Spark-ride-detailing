@@ -3,9 +3,11 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { StaticImageData } from 'next/image';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { Star, CheckCircle, Clock, Shield, MapPin } from 'lucide-react';
 
 // Define proper types for service content
 interface ParagraphContent {
@@ -51,6 +53,8 @@ interface ServiceData {
     quote: string;
     rating: number;
   }[];
+  startingPrice?: number;
+  duration?: string;
 }
 
 interface Services {
@@ -58,9 +62,83 @@ interface Services {
 }
 
 const services: Services = {
+  'all-services': {
+    title: 'All Our Services',
+    description: 'Comprehensive auto detailing services including mobile detailing, window tinting, ceramic coating, and paint correction - all available at your convenience.',
+    startingPrice: 129,
+    duration: 'Varies by service',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'We offer a complete range of professional auto detailing services designed to keep your vehicle looking its best. From mobile detailing that comes to you, to advanced ceramic coating protection, we have everything you need to maintain and enhance your vehicle\'s appearance.'
+      },
+      {
+        type: 'heading',
+        text: 'Our Complete Service Range:'
+      },
+      {
+        type: 'list',
+        items: [
+          {
+            title: 'Mobile Auto Detailing',
+            description: 'Professional detailing service that comes to your location - home, office, or anywhere convenient'
+          },
+          {
+            title: 'Window Tinting',
+            description: 'High-quality window tinting for UV protection, heat reduction, privacy, and enhanced appearance'
+          },
+          {
+            title: 'Ceramic Coating',
+            description: 'Advanced ceramic coating technology for long-lasting paint protection and hydrophobic properties'
+          },
+          {
+            title: 'Paint Correction',
+            description: 'Professional paint correction to remove imperfections and restore your vehicle\'s original shine'
+          }
+        ]
+      },
+      {
+        type: 'heading',
+        text: 'Why Choose Our Services:'
+      },
+      {
+        type: 'numbered-list',
+        items: [
+          'Certified professional technicians with years of experience',
+          'Premium, eco-friendly products for superior results',
+          'Mobile service available - we come to you',
+          'Competitive pricing with no hidden fees',
+          'Satisfaction guarantee on all services',
+          'Flexible scheduling to fit your needs'
+        ]
+      }
+    ],
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    beforeAfter: [
+      {
+        before: '/pictures/ExteriorCleaningBefore.png',
+        after: '/pictures/ExteriorCleaningAfter.png',
+        caption: 'Complete Vehicle Transformation'
+      }
+    ],
+    testimonials: [
+      {
+        name: 'Mike Chen',
+        quote: 'Best detailing service I&apos;ve ever used! They came to my office and made my car look brand new. Worth every penny!',
+        rating: 5
+      },
+      {
+        name: 'Sarah Johnson',
+        quote: 'Spark Ride transformed my car! The ceramic coating looks incredible and the mobile service saved me so much time. Highly recommended!',
+        rating: 5
+      }
+    ]
+  },
   'mobile-detailing': {
     title: 'Mobile Auto Detailing',
     description: 'Our comprehensive mobile detailing service brings the professional car wash experience to your doorstep.',
+    startingPrice: 129,
+    duration: '2-3 hours',
     content: [
       {
         type: 'paragraph',
@@ -98,43 +176,18 @@ const services: Services = {
             description: 'Cleaning and conditioning of leather surfaces'
           }
         ]
-      },
-      {
-        type: 'heading',
-        text: 'Benefits of Mobile Detailing:'
-      },
-      {
-        type: 'list',
-        items: [
-          {
-            title: 'Convenience',
-            description: 'No need to drive to a detailing shop or wait while your car is being serviced'
-          },
-          {
-            title: 'Personalized Service',
-            description: 'One-on-one attention from our detailing professionals'
-          },
-          {
-            title: 'Premium Products',
-            description: 'We use only high-quality detailing products'
-          },
-          {
-            title: 'Time Savings',
-            description: 'Keep working or relaxing while we detail your vehicle'
-          }
-        ]
       }
     ],
     image: 'https://images.unsplash.com/photo-1621217899086-01f0e603009e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     beforeAfter: [
       {
-        before: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-        after: 'https://images.unsplash.com/photo-1575844611398-2a68400b437c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+        before: '/pictures/InteriorCleaningBefore.png',
+        after: '/pictures/InteriorCleaningAfter.png',
         caption: 'Interior Transformation'
       },
       {
-        before: 'https://images.unsplash.com/photo-1549924231-f129b911e442?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-        after: 'https://images.unsplash.com/photo-1575844611398-2a68400b437c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80', // Fixed: replaced undefined 'after' with actual URL
+        before: '/pictures/ExteriorCleaningBefore.png',
+        after: '/pictures/ExteriorCleaningAfter.png',
         caption: 'Exterior Shine'
       }
     ],
@@ -151,9 +204,11 @@ const services: Services = {
       }
     ]
   },
-  'window-tint': {
+  'window-tinting': {
     title: 'Window Tinting Services',
     description: 'Professional window tinting for improved comfort, privacy, and protection.',
+    startingPrice: 249,
+    duration: '2-4 hours',
     content: [
       {
         type: 'paragraph',
@@ -191,27 +246,13 @@ const services: Services = {
             description: 'Gives your vehicle a sleek, sophisticated look'
           }
         ]
-      },
-      {
-        type: 'heading',
-        text: 'Our Tinting Process:'
-      },
-      {
-        type: 'numbered-list',
-        items: [
-          'Consultation - We discuss your needs and legal tinting limits in your area',
-          'Window Preparation - We thoroughly clean your windows to ensure perfect application',
-          'Precision Cutting - Each film is precisely cut to fit your specific window dimensions',
-          'Professional Installation - Expert application with no bubbles or imperfections',
-          'Curing - Instructions on care during the initial curing period'
-        ]
       }
     ],
     image: 'https://plus.unsplash.com/premium_photo-1694444690362-8a24b98fdc59?q=80&w=1298&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     beforeAfter: [
       {
-        before: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-        after: 'https://images.unsplash.com/photo-1502161254066-6c74afbf07aa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+        before: '/pictures/WindowTintingBefore.png',
+        after: '/pictures/WindowTintingAfter.png',
         caption: 'Window Tint Application'
       }
     ],
@@ -231,6 +272,8 @@ const services: Services = {
   'ceramic-coating': {
     title: 'Ceramic Coating Protection',
     description: 'Long-lasting protection for your vehicle with advanced ceramic coating technology.',
+    startingPrice: 699,
+    duration: '4-6 hours',
     content: [
       {
         type: 'paragraph',
@@ -268,20 +311,6 @@ const services: Services = {
             description: 'Dirt and grime don\'t bond to the surface as easily'
           }
         ]
-      },
-      {
-        type: 'heading',
-        text: 'Our Ceramic Coating Process:'
-      },
-      {
-        type: 'numbered-list',
-        items: [
-          'Paint Correction - We remove swirl marks, scratches, and imperfections',
-          'Surface Preparation - Deep cleaning to remove all contaminants',
-          'Coating Application - Precise application by certified professionals',
-          'Curing Process - Controlled environment for optimal bonding',
-          'Final Inspection - Quality check to ensure perfect application'
-        ]
       }
     ],
     image: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
@@ -304,6 +333,71 @@ const services: Services = {
         rating: 5
       }
     ]
+  },
+  'paint-correction': {
+    title: 'Paint Correction Services',
+    description: 'Restore your vehicle\'s paint to its original glory with professional paint correction techniques.',
+    startingPrice: 399,
+    duration: '3-5 hours',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Paint correction is a multi-step process that removes imperfections from your vehicle\'s paint surface, restoring it to a flawless, mirror-like finish. Our professional technicians use advanced techniques and equipment to eliminate swirl marks, scratches, oxidation, and other defects.'
+      },
+      {
+        type: 'heading',
+        text: 'What Paint Correction Includes:'
+      },
+      {
+        type: 'list',
+        items: [
+          {
+            title: 'Swirl Mark Removal',
+            description: 'Eliminate fine scratches and swirl marks from improper washing'
+          },
+          {
+            title: 'Scratch Repair',
+            description: 'Minimize the appearance of deeper scratches and imperfections'
+          },
+          {
+            title: 'Oxidation Removal',
+            description: 'Restore faded and oxidized paint to its original color'
+          },
+          {
+            title: 'Clay Bar Treatment',
+            description: 'Remove embedded contaminants from the paint surface'
+          },
+          {
+            title: 'Polishing & Buffing',
+            description: 'Achieve a high-gloss, smooth finish'
+          },
+          {
+            title: 'Protection Application',
+            description: 'Apply wax or sealant for lasting protection'
+          }
+        ]
+      }
+    ],
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    beforeAfter: [
+      {
+        before: '/pictures/ExteriorCleaningBefore.png',
+        after: '/pictures/ExteriorCleaningAfter.png',
+        caption: 'Paint Correction Results'
+      }
+    ],
+    testimonials: [
+      {
+        name: 'Mark S.',
+        quote: 'My car looked brand new after paint correction. The scratches that bothered me for years are gone!',
+        rating: 5
+      },
+      {
+        name: 'Lisa P.',
+        quote: 'Incredible results! The paint correction made my car shine like it did when I first bought it.',
+        rating: 5
+      }
+    ]
   }
 };
 
@@ -316,81 +410,97 @@ const Service = ({ serviceId }: ServiceProps) => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
-    // Animation on scroll
-    const handleScroll = () => {
-      const elements = document.querySelectorAll('.fade-in');
-      elements.forEach(element => {
-        const elementTop = element.getBoundingClientRect().top;
-        const elementHeight = element.getBoundingClientRect().height;
-
-        if (elementTop < window.innerHeight - elementHeight / 2) {
-          element.classList.add('visible');
-        }
-      });
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll);
-
-    return () => window.removeEventListener('scroll', handleScroll);
   }, [serviceId]);
 
   if (!service) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col font-poppins">
         <Navbar />
-        <div className="container mx-auto px-4 py-20">
-          <h1 className="text-3xl font-bold mb-4">Service Not Found</h1>
-          <p>The service you&apos;re looking for doesn&apos;t exist.</p>
-          <Link href="/" className="text-skyblue hover:underline">Return to Home</Link>
+        <div className="container mx-auto px-4 py-20 text-center">
+          <h1 className="text-4xl font-bold mb-4 text-gray-900">Service Not Found</h1>
+          <p className="text-gray-600 mb-8">The service you&apos;re looking for doesn&apos;t exist.</p>
+          <Link href="/" className="text-[#10B5DB] hover:underline font-semibold">Return to Home</Link>
         </div>
         <Footer />
       </div>
     );
   }
 
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+      />
+    ));
+  };
+
   const renderContent = () => {
     return service.content.map((item, index) => {
       if (item.type === 'paragraph') {
         return (
-          <p key={index} className="text-gray-700 mb-6 fade-in">
+          <motion.p 
+            key={index} 
+            className="text-gray-600 mb-6 leading-relaxed text-lg"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+          >
             {item.text}
-          </p>
+          </motion.p>
         );
       } else if (item.type === 'heading') {
         return (
-          <h3 key={index} className="text-2xl font-bold mb-4 mt-8 fade-in">
+          <motion.h3 
+            key={index} 
+            className="text-3xl font-bold mb-6 mt-12 text-gray-900"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+          >
             {item.text}
-          </h3>
+          </motion.h3>
         );
       } else if (item.type === 'list') {
         return (
-          <div key={index} className="space-y-4 mb-8 fade-in">
+          <motion.div 
+            key={index} 
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+          >
             {item.items.map((listItem, idx) => (
-              <div key={idx} className="flex items-start gap-4">
-                <div className="bg-skyblue rounded-full p-2 mt-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+              <div key={idx} className="flex items-start gap-4 p-4 bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                <div className="bg-[#10B5DB] rounded-2xl p-3 mt-1">
+                  <CheckCircle className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-lg">{listItem.title}</h4>
+                  <h4 className="font-bold text-gray-900 text-lg mb-2">{listItem.title}</h4>
                   <p className="text-gray-600">{listItem.description}</p>
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
         );
       } else if (item.type === 'numbered-list') {
         return (
-          <ol key={index} className="list-decimal list-inside space-y-2 mb-8 pl-4 fade-in">
+          <motion.ol 
+            key={index} 
+            className="space-y-4 mb-8 pl-6"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+          >
             {item.items.map((listItem, idx) => (
-              <li key={idx} className="text-gray-700">
-                {listItem}
+              <li key={idx} className="text-gray-600 text-lg flex items-start gap-4">
+                <span className="bg-[#10B5DB] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mt-1 flex-shrink-0">
+                  {idx + 1}
+                </span>
+                <span>{listItem}</span>
               </li>
             ))}
-          </ol>
+          </motion.ol>
         );
       }
       return null;
@@ -398,11 +508,12 @@ const Service = ({ serviceId }: ServiceProps) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col font-poppins">
       <Navbar />
 
-      <div className="pt-16">
-        <div className="relative h-screen overflow-hidden">
+      {/* Hero Section */}
+      <section className="pt-16">
+        <div className="relative h-96 lg:h-screen overflow-hidden">
           <Image
             src={service.image}
             alt={service.title}
@@ -410,107 +521,200 @@ const Service = ({ serviceId }: ServiceProps) => {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-darkblack/60 to-transparent flex items-center">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40 flex items-center">
             <div className="container mx-auto px-4">
-              <h1 className="text-white text-3xl md:text-5xl font-bold text-center mb-4 fade-in">
-                <span className="text-skyblue">{service.title.split(' ')[0]}</span> {service.title.split(' ').slice(1).join(' ')}
-              </h1>
-              <p className="text-white text-xl text-center fade-in">{service.description}</p>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="text-center text-white"
+              >
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
+                  {service.title}
+                </h1>
+                <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
+                  {service.description}
+                </p>
+                
+                {/* Service Info Cards */}
+                <div className="flex flex-wrap justify-center gap-6 mb-8">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
+                    <div className="text-2xl font-bold text-[#10B5DB]">${service.startingPrice}</div>
+                    <div className="text-white/80">Starting Price</div>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
+                    <div className="text-2xl font-bold text-[#10B5DB]">{service.duration}</div>
+                    <div className="text-white/80">Duration</div>
+                  </div>
+                </div>
 
-              {/* Added Buttons Here */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 fade-in">
-                <Link
-                  href="/booking"
-                  className="bg-sky-500 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-lg hover:bg-sky-600 hover:-translate-y-1 transform transition text-center"
-                >
-                  Book Now
-                </Link>
-              </div>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    href="/booking"
+                    className="bg-[#10B5DB] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#0E9AC3] transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-center text-lg"
+                  >
+                    Book This Service
+                  </Link>
+                  <Link
+                    href="/services"
+                    className="border-2 border-white text-white px-8 py-4 rounded-2xl font-bold hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:-translate-y-1 text-center text-lg"
+                  >
+                    View All Services
+                  </Link>
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Service Content */}
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto">
-            <div className="fade-in">
+      {/* Service Content */}
+      <section className="py-20 bg-gradient-to-br from-white to-gray-50/50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
               {renderContent()}
-            </div>
+            </motion.div>
+
+            {/* Features */}
+            <motion.div 
+              className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <div className="text-center p-6 bg-white rounded-3xl shadow-lg border border-gray-100">
+                <MapPin className="h-12 w-12 text-[#10B5DB] mx-auto mb-4" />
+                <h3 className="font-bold text-gray-900 text-xl mb-2">Mobile Service</h3>
+                <p className="text-gray-600">We come to your location - home, office, or anywhere convenient</p>
+              </div>
+              <div className="text-center p-6 bg-white rounded-3xl shadow-lg border border-gray-100">
+                <Shield className="h-12 w-12 text-[#10B5DB] mx-auto mb-4" />
+                <h3 className="font-bold text-gray-900 text-xl mb-2">Premium Products</h3>
+                <p className="text-gray-600">Professional-grade products for lasting protection and shine</p>
+              </div>
+              <div className="text-center p-6 bg-white rounded-3xl shadow-lg border border-gray-100">
+                <Clock className="h-12 w-12 text-[#10B5DB] mx-auto mb-4" />
+                <h3 className="font-bold text-gray-900 text-xl mb-2">Time Efficient</h3>
+                <p className="text-gray-600">Quick and efficient service without compromising quality</p>
+              </div>
+            </motion.div>
 
             {/* Before & After */}
-            <div className="mt-16">
-              <h2 className="text-3xl font-bold mb-8 fade-in">Before & After</h2>
-              <div className="space-y-12">
+            <motion.div 
+              className="mt-20"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <h2 className="text-4xl font-bold mb-12 text-center text-gray-900">Before & After Results</h2>
+              <div className="space-y-16">
                 {service.beforeAfter.map((item, index) => (
-                  <div key={index} className="fade-in" style={{ animationDelay: `${index * 0.2}s` }}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <div className="aspect-video overflow-hidden rounded-lg shadow-lg relative">
+                  <motion.div 
+                    key={index}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.2 }}
+                    className="text-center"
+                  >
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
+                      <div className="relative group">
+                        <div className="relative h-80 rounded-3xl overflow-hidden shadow-2xl">
                           <Image
                             src={item.before}
                             alt={`Before ${item.caption}`}
                             fill
-                            className="object-cover"
+                            className="object-cover group-hover:scale-105 transition-transform duration-700"
                           />
-                          <div className="absolute bottom-0 left-0 right-0 bg-darkblack text-white px-4 py-2">
-                            <span>Before</span>
+                          <div className="absolute bottom-0 left-0 right-0 bg-gray-900/80 text-white px-6 py-4">
+                            <span className="font-bold text-lg">Before</span>
                           </div>
                         </div>
                       </div>
-                      <div>
-                        <div className="aspect-video overflow-hidden rounded-lg shadow-lg relative">
+                      <div className="relative group">
+                        <div className="relative h-80 rounded-3xl overflow-hidden shadow-2xl">
                           <Image
                             src={item.after}
                             alt={`After ${item.caption}`}
                             fill
-                            className="object-cover"
+                            className="object-cover group-hover:scale-105 transition-transform duration-700"
                           />
-                          <div className="absolute bottom-0 left-0 right-0 bg-skyblue text-white px-4 py-2">
-                            <span>After</span>
+                          <div className="absolute bottom-0 left-0 right-0 bg-[#10B5DB] text-white px-6 py-4">
+                            <span className="font-bold text-lg">After</span>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <p className="text-center text-gray-600">{item.caption}</p>
-                  </div>
+                    <p className="text-gray-600 text-lg font-semibold">{item.caption}</p>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* Testimonials */}
-            <div className="mt-16">
-              <h2 className="text-3xl font-bold mb-8 fade-in">Customer Testimonials</h2>
+            <motion.div 
+              className="mt-20"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <h2 className="text-4xl font-bold mb-12 text-center text-gray-900">Customer Testimonials</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {service.testimonials.map((testimonial, index) => (
-                  <div key={index} className="bg-white p-6 rounded-lg shadow-lg fade-in" style={{ animationDelay: `${index * 0.2}s` }}>
+                  <motion.div 
+                    key={index}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.2 }}
+                    className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
+                  >
                     <div className="flex items-center mb-4">
-                      <div className="text-yellow-400 flex">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <svg key={i} className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                        ))}
+                      <div className="flex gap-1">
+                        {renderStars(testimonial.rating)}
                       </div>
                     </div>
-                    <p className="text-gray-600 mb-4">{testimonial.quote}</p>
-                    <p className="font-semibold">{testimonial.name}</p>
-                  </div>
+                    <p className="text-gray-600 mb-6 text-lg leading-relaxed italic">
+                      &quot;{testimonial.quote}&quot;
+                    </p>
+                    <p className="font-bold text-gray-900 text-lg">{testimonial.name}</p>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
-            {/* Call to Action */}
-            <div className="mt-16 text-center fade-in">
-              <Link
-                href="/booking"
-                className="bg-darkblack text-white px-8 py-3 rounded-full inline-block font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1"
-              >
-                Book This Service
-              </Link>
-            </div>
+            {/* Final CTA */}
+            <motion.div 
+              className="mt-20 text-center"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+            >
+              <div className="bg-[#10B5DB] rounded-3xl p-12 text-white">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Transform Your Vehicle?</h2>
+                <p className="text-xl mb-8 opacity-90">Book your {service.title} today and experience the Spark Ride difference</p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    href="/booking"
+                    className="bg-white text-[#10B5DB] px-8 py-4 rounded-2xl font-bold hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-center text-lg"
+                  >
+                    Book Now
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="border-2 border-white text-white px-8 py-4 rounded-2xl font-bold hover:bg-white hover:text-[#10B5DB] transition-all duration-300 transform hover:-translate-y-1 text-center text-lg"
+                  >
+                    Contact Us
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
-      </div>
+      </section>
 
       <Footer />
     </div>

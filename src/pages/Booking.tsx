@@ -39,7 +39,7 @@ const Booking = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col">
       <Navbar />
 
       <div className="pt-24 pb-16 flex-grow">

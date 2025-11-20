@@ -131,7 +131,7 @@ const TestimonialsSection = () => {
   };
 
   return (
-    <section className="py-24 bg-gradient-to-br from-white to-gray-50/50">
+    <section className="py-24 bg-gradient-to-br from-white to-gray-50/50 font-poppins">
       {/* Testimonials Section */}
       <div className="container mx-auto px-4 mb-24">
         {/* Header */}
@@ -196,7 +196,7 @@ const TestimonialsSection = () => {
 
                 {/* Customer Info */}
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#10B5DB] to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                  <div className="w-12 h-12 bg-[#10B5DB] rounded-full flex items-center justify-center text-white font-semibold">
                     {testimonial.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
@@ -230,24 +230,24 @@ const TestimonialsSection = () => {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="bg-gradient-to-r from-[#10B5DB] to-blue-600 rounded-3xl p-8 text-white text-center"
+          className="bg-[#10B5DB] rounded-3xl p-8 text-white text-center"
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
               <div className="text-3xl md:text-4xl font-bold mb-2">500+</div>
-              <div className="text-blue-100">Happy Customers</div>
+              <div className="text-[#10B5DB]/80">Happy Customers</div>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold mb-2">4.9/5</div>
-              <div className="text-blue-100">Average Rating</div>
+              <div className="text-[#10B5DB]/80">Average Rating</div>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold mb-2">100%</div>
-              <div className="text-blue-100">Satisfaction</div>
+              <div className="text-[#10B5DB]/80">Satisfaction</div>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold mb-2">5+</div>
-              <div className="text-blue-100">Years Experience</div>
+              <div className="text-[#10B5DB]/80">Years Experience</div>
             </div>
           </div>
         </motion.div>

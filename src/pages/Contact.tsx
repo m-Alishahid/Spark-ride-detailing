@@ -12,17 +12,11 @@ const Contact = () => {
       <div className="pt-24 pb-16 flex-grow">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Contact Us</h1>
-            <p className="text-gray-600 max-w-3xl mx-auto">
-              Have questions or ready to book an appointment? Get in touch with our team. 
-              {/* We're here to help with all your auto detailing needs. */}
-              We&apos;re here to help
-            </p>
           </div>
           
           <ContactSection />
           
-          <div className="mt-16">
+          {/* <div className="mt-16">
             <h2 className="text-2xl font-bold mb-6 text-center">Find Us On Facebook</h2>
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="aspect-video">
@@ -38,7 +32,7 @@ const Contact = () => {
                 />
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       

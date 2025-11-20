@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Plus, Trash2, Car, Package, User, Check, ChevronRight, Sparkles } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, Car, Package, User, Check, ChevronRight, Sparkles, ChevronLeft, Menu } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -104,7 +104,7 @@ interface FormData {
 // Generate unique booking ID
 const generateBookingId = (): string => {
   const randomNum = Math.floor(10000 + Math.random() * 90000);
-  return `DAD-${randomNum}`;
+  return `SR-${randomNum}`; // Changed from DAD- to SR- for Spark Ride
 };
 
 // Phone number formatting utility
@@ -172,9 +172,10 @@ const BookingForm = () => {
   const [promoError, setPromoError] = useState("");
   const [isManualState, setIsManualState] = useState(false);
   const [direction, setDirection] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Website name
-  const WEBSITE_NAME = "Decent Auto Detailing";
+  // Website name - Updated to Spark Ride
+  const WEBSITE_NAME = "Spark Ride";
 
   // Animation variants
   const fadeIn = { 
@@ -215,11 +216,40 @@ const BookingForm = () => {
     });
   };
 
-  // Auto-detect state from city
+  // Auto-detect state from city - Updated for Virginia cities
   const autoDetectState = (city: string): string => {
     if (!city) return "";
     const normalizedCity = city.toLowerCase().trim();
-    return allCities[normalizedCity] || "";
+    
+    // Virginia cities mapping
+    const virginiaCities: { [key: string]: string } = {
+      'richmond': 'VA',
+      'virginia beach': 'VA',
+      'norfolk': 'VA',
+      'chesapeake': 'VA',
+      'arlington': 'VA',
+      'newport news': 'VA',
+      'alexandria': 'VA',
+      'hampton': 'VA',
+      'roanoke': 'VA',
+      'portsmouth': 'VA',
+      'suffolk': 'VA',
+      'lynchburg': 'VA',
+      'harrisonburg': 'VA',
+      'leesburg': 'VA',
+      'charlottesville': 'VA',
+      'blacksburg': 'VA',
+      'danville': 'VA',
+      'manassas': 'VA',
+      'petersburg': 'VA',
+      'fredericksburg': 'VA',
+      'winchester': 'VA',
+      'salem': 'VA',
+      'herndon': 'VA',
+      'fairfax': 'VA'
+    };
+
+    return virginiaCities[normalizedCity] || allCities[normalizedCity] || "";
   };
 
   // Auto-apply promo code from sessionStorage
@@ -232,7 +262,7 @@ const BookingForm = () => {
       sessionStorage.removeItem("auto_apply_promo");
       sessionStorage.removeItem("auto_apply_promo_discount");
     }
-  }, [appliedPromo]); // Fixed: added appliedPromo dependency
+  }, [appliedPromo]);
 
   // Handle phone number input with formatting
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -548,16 +578,15 @@ const BookingForm = () => {
         body: JSON.stringify(bookingData),
       });
 
-      const data = await res.json();
-
       if (res.ok) {
         toast.success('Booking Confirmed Successfully');
         setShowConfirmation(true);
       } else {
+        const data = await res.json();
         toast.error(data.error || 'Booking Confirmation Error');
       }
 
-    } catch (error) { // Fixed: changed 'err' to 'error'
+    } catch (error) {
       console.error('Booking error:', error);
       toast.error('Network error - please try again');
     } finally {
@@ -649,30 +678,127 @@ const BookingForm = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 text-gray-900 font-['Poppins']">
-        {/* Header Section - Spark Ride Style */}
-        <div className="bg-gradient-to-br from-[#10B5DB]/10 via-white to-gray-100 pt-24 pb-16">
-          <div className="container mx-auto px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                Book Your <span className="text-[#10B5DB]">Premium</span> Service
-              </h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Experience the {WEBSITE_NAME} difference with our professional detailing services. 
-                Get your vehicle looking showroom-ready.
-              </p>
-            </motion.div>
+      <div className="min-h-screen font-['Poppins']">
+        {/* Mobile Progress Bar */}
+        <div className="lg:hidden bg-white border-b border-gray-200 sticky top-0 z-40">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={prevStep}
+                className={currentStep === 1 ? "invisible" : ""}
+              >
+                <ChevronLeft size={20} />
+              </Button>
+              
+              <div className="flex-1 px-4">
+                <div className="flex justify-between items-center mb-2">
+                  {stepConfig.map(({ step: stepNum, label }) => {
+                    const isActive = currentStep === stepNum;
+                    const isCompleted = currentStep > stepNum;
+                    
+                    return (
+                      <div key={stepNum} className="flex flex-col items-center">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                          isActive 
+                            ? "bg-[#10B5DB] border-[#10B5DB] text-white" 
+                            : isCompleted 
+                              ? "bg-green-500 border-green-500 text-white"
+                              : "bg-gray-100 border-gray-300 text-gray-500"
+                        }`}>
+                          {isCompleted ? <Check size={16} /> : stepNum}
+                        </div>
+                        <span className={`text-xs mt-1 ${isActive ? "text-[#10B5DB] font-medium" : "text-gray-500"}`}>
+                          Step {stepNum}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="text-center">
+                  <span className="text-sm font-medium text-gray-900">
+                    {stepConfig.find(s => s.step === currentStep)?.label}
+                  </span>
+                </div>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                <Menu size={20} />
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
+        {/* Mobile Navigation Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="lg:hidden bg-white border-b border-gray-200 overflow-hidden"
+            >
+              <div className="container mx-auto px-4 py-4">
+                <div className="space-y-3">
+                  {stepConfig.map(({ step: stepNum, label, icon, description }) => {
+                    const isActive = currentStep === stepNum;
+                    const isCompleted = currentStep > stepNum;
+
+                    return (
+                      <button
+                        key={stepNum}
+                        onClick={() => {
+                          if (stepNum <= currentStep) {
+                            setCurrentStep(stepNum);
+                            setIsMobileMenuOpen(false);
+                          }
+                        }}
+                        className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                          isActive 
+                            ? "border-[#10B5DB] bg-[#10B5DB]/5" 
+                            : isCompleted
+                              ? "border-green-200 bg-green-50"
+                              : "border-gray-200 bg-gray-50"
+                        } ${stepNum > currentStep ? "opacity-50 cursor-not-allowed" : ""}`}
+                        disabled={stepNum > currentStep}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                            isActive 
+                              ? "bg-[#10B5DB] border-[#10B5DB] text-white" 
+                              : isCompleted 
+                                ? "bg-green-500 border-green-500 text-white"
+                                : "bg-gray-100 border-gray-300 text-gray-500"
+                          }`}>
+                            {isCompleted ? <Check size={16} /> : icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`font-medium text-sm ${
+                              isActive ? "text-[#10B5DB]" : isCompleted ? "text-gray-900" : "text-gray-500"
+                            }`}>
+                              {label}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">{description}</p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="container mx-auto px-4 py-6 lg:py-12">
+          <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 lg:gap-8">
             
-            {/* Progress Bar - Desktop - Spark Ride Style */}
+            {/* Progress Bar - Desktop */}
             <div className="hidden lg:flex lg:w-1/4">
               <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Booking Steps</h3>
@@ -709,11 +835,11 @@ const BookingForm = () => {
 
             {/* Main Form Content */}
             <div className="lg:w-3/4">
-              <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-6 md:p-8">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-4 md:p-6 lg:p-8">
                 <form onSubmit={handleSubmit}>
                   <AnimatePresence initial={false} custom={direction} mode="wait">
                     
-                    {/* STEP 1 - Vehicle Information - Spark Ride Style */}
+                    {/* STEP 1 - Vehicle Information */}
                     {currentStep === 1 && (
                       <motion.div
                         key="step1"
@@ -725,23 +851,24 @@ const BookingForm = () => {
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         className="space-y-6"
                       >
-                        <div className="text-center mb-8">
-                          <div className="w-12 h-12 bg-[#10B5DB]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Car className="h-6 w-6 text-[#10B5DB]" />
+                        <div className="text-center mb-6 lg:mb-8">
+                          <div className="w-10 h-10 lg:w-12 lg:h-12 bg-[#10B5DB]/10 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
+                            <Car className="h-5 w-5 lg:h-6 lg:w-6 text-[#10B5DB]" />
                           </div>
-                          <h2 className="text-2xl font-bold text-gray-900">Vehicle Information</h2>
-                          <p className="text-gray-600 mt-2">Tell us about the vehicle(s) you want serviced</p>
+                          <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Vehicle Information</h2>
+                          <p className="text-gray-600 mt-2 text-sm lg:text-base">Tell us about the vehicle(s) you want serviced</p>
                         </div>
 
                         {/* Add Vehicle Button - Top */}
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                           <h3 className="text-lg font-semibold text-gray-900">
                             Vehicle Services ({formData.vehicleBookings.length})
                           </h3>
                           <Button
                             type="button"
                             onClick={addVehicleBooking}
-                            className="bg-[#10B5DB] hover:bg-[#10B5DB]/90 text-white"
+                            className="bg-[#10B5DB] hover:bg-[#10B5DB]/90 text-white w-full sm:w-auto"
+                            size="sm"
                           >
                             <Plus className="w-4 h-4 mr-2" />
                             Add Another Vehicle
@@ -771,7 +898,7 @@ const BookingForm = () => {
                               initial={{ opacity: 0, scale: 0.95 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ duration: 0.3, delay: index * 0.1 }}
-                              className="border border-gray-200 rounded-xl bg-white p-6 shadow-sm relative"
+                              className="border border-gray-200 rounded-xl bg-white p-4 md:p-6 shadow-sm relative"
                             >
                               {/* Remove Vehicle Button */}
                               {formData.vehicleBookings.length > 1 && (
@@ -780,9 +907,9 @@ const BookingForm = () => {
                                   onClick={() => removeVehicleBooking(vehicle.id)}
                                   variant="outline"
                                   size="sm"
-                                  className="absolute top-4 right-4 text-red-600 border-red-200 hover:bg-red-50"
+                                  className="absolute top-3 right-3 md:top-4 md:right-4 text-red-600 border-red-200 hover:bg-red-50"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
                                 </Button>
                               )}
 
@@ -868,7 +995,7 @@ const BookingForm = () => {
                                     <Label className="block text-gray-900 font-medium">
                                       Select {mainService?.name} Package
                                     </Label>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 gap-3">
                                       {filterPackagesByVehicleType(mainService?.packages || [], vehicle.vehicleType).map((pkg) => {
                                         const isSelected = vehicle.package === pkg.id;
                                         return (
@@ -882,16 +1009,16 @@ const BookingForm = () => {
                                             }`}
                                           >
                                             <div className="flex justify-between items-start mb-2">
-                                              <span className="font-medium text-gray-900">{pkg.name}</span>
-                                              <span className="font-bold text-[#10B5DB]">
+                                              <span className="font-medium text-gray-900 text-sm md:text-base">{pkg.name}</span>
+                                              <span className="font-bold text-[#10B5DB] text-sm md:text-base">
                                                 ${pkg.price}
                                               </span>
                                             </div>
-                                            <p className="text-sm text-gray-600">{pkg.description}</p>
+                                            <p className="text-xs md:text-sm text-gray-600">{pkg.description}</p>
                                             {pkg.includes && (
                                               <div className="mt-2 text-xs text-gray-500">
                                                 <span className="font-medium">Includes:</span>
-                                                <ul className="list-disc list-inside mt-1">
+                                                <ul className="list-disc list-inside mt-1 space-y-1">
                                                   {pkg.includes.map((item, index) => (
                                                     <li key={index}>{item}</li>
                                                   ))}
@@ -899,8 +1026,8 @@ const BookingForm = () => {
                                               </div>
                                             )}
                                             {isSelected && (
-                                              <div className="mt-2 text-[#10B5DB] flex items-center text-sm">
-                                                <Check size={16} className="mr-2" /> Selected
+                                              <div className="mt-2 text-[#10B5DB] flex items-center text-xs md:text-sm">
+                                                <Check size={14} className="mr-1" /> Selected
                                               </div>
                                             )}
                                           </div>
@@ -911,10 +1038,10 @@ const BookingForm = () => {
                                     {/* Vehicle Details */}
                                     {vehicle.package && (
                                       <>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-6 border-t border-gray-200">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-4 border-t border-gray-200">
                                           {/* Vehicle Type Input */}
                                           <div className="space-y-2">
-                                            <Label htmlFor={`${vehicle.id}-vehicleType`} className="text-gray-900">
+                                            <Label htmlFor={`${vehicle.id}-vehicleType`} className="text-gray-900 text-sm">
                                               Vehicle Type*
                                             </Label>
                                             <Input
@@ -923,7 +1050,7 @@ const BookingForm = () => {
                                               value={vehicle.vehicleType}
                                               onChange={(e) => updateVehicleBooking(vehicle.id, 'vehicleType', e.target.value)}
                                               placeholder="Vehicle Type *"
-                                              className="bg-white border-gray-300"
+                                              className="bg-white border-gray-300 h-10 text-sm"
                                               required
                                             />
                                           </div>
@@ -935,7 +1062,7 @@ const BookingForm = () => {
                                             { id: "vehicleColor", label: "Color*", placeholder: "e.g., Red" }
                                           ].map((field) => (
                                             <div key={field.id} className="space-y-2">
-                                              <Label htmlFor={`${vehicle.id}-${field.id}`} className="text-gray-900">
+                                              <Label htmlFor={`${vehicle.id}-${field.id}`} className="text-gray-900 text-sm">
                                                 {field.label}
                                               </Label>
                                               <Input
@@ -944,7 +1071,7 @@ const BookingForm = () => {
                                                 value={vehicle[field.id as keyof VehicleBooking] as string}
                                                 onChange={(e) => updateVehicleBooking(vehicle.id, field.id as keyof VehicleBooking, e.target.value)}
                                                 placeholder={field.placeholder}
-                                                className="bg-white border-gray-300"
+                                                className="bg-white border-gray-300 h-10 text-sm"
                                                 required
                                               />
                                             </div>
@@ -954,7 +1081,7 @@ const BookingForm = () => {
                                         {/* Vehicle Length Input (for perFoot pricing) */}
                                         {requiresLength && (
                                           <div className="space-y-2">
-                                            <Label htmlFor={`${vehicle.id}-vehicleLength`} className="text-gray-900">
+                                            <Label htmlFor={`${vehicle.id}-vehicleLength`} className="text-gray-900 text-sm">
                                               Vehicle Length (feet)*
                                             </Label>
                                             <Input
@@ -962,13 +1089,13 @@ const BookingForm = () => {
                                               id={`${vehicle.id}-vehicleLength`}
                                               value={vehicle.vehicleLength || ""}
                                               onChange={(e) => updateVehicleBooking(vehicle.id, 'vehicleLength', e.target.value)}
-                                              className="bg-white border-gray-300"
+                                              className="bg-white border-gray-300 h-10 text-sm"
                                               placeholder="Enter length in feet"
                                               required
                                               min="1"
                                               step="0.1"
                                             />
-                                            <p className="text-sm text-gray-500 mt-1">
+                                            <p className="text-xs text-gray-500 mt-1">
                                               Price will be calculated based on the length of your vehicle
                                             </p>
                                           </div>
@@ -983,12 +1110,12 @@ const BookingForm = () => {
                         })}
 
                         {/* Navigation */}
-                        <div className="flex justify-end pt-6 border-t border-gray-200">
+                        <div className="flex justify-end pt-4 border-t border-gray-200">
                           <Button 
                             type="button"
                             onClick={nextStep} 
                             disabled={!areAllVehiclesValid}
-                            className="bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 px-8 py-2.5"
+                            className="bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 px-6 py-2.5 text-sm md:text-base"
                           >
                             Continue to Services
                             <ChevronRight size={18} className="ml-2" />
@@ -997,7 +1124,7 @@ const BookingForm = () => {
                       </motion.div>
                     )}
 
-                    {/* STEP 2 - Date & Time - Spark Ride Style */}
+                    {/* STEP 2 - Date & Time */}
                     {currentStep === 2 && (
                       <motion.div
                         initial="hidden"
@@ -1005,24 +1132,24 @@ const BookingForm = () => {
                         variants={fadeIn}
                         className="space-y-6"
                       >
-                        <div className="text-center mb-8">
-                          <div className="w-12 h-12 bg-[#10B5DB]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Package className="h-6 w-6 text-[#10B5DB]" />
+                        <div className="text-center mb-6 lg:mb-8">
+                          <div className="w-10 h-10 lg:w-12 lg:h-12 bg-[#10B5DB]/10 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
+                            <Package className="h-5 w-5 lg:h-6 lg:w-6 text-[#10B5DB]" />
                           </div>
-                          <h2 className="text-2xl font-bold text-gray-900">Service Selection</h2>
-                          <p className="text-gray-600 mt-2">Choose the perfect services for your vehicle</p>
+                          <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Service Selection</h2>
+                          <p className="text-gray-600 mt-2 text-sm lg:text-base">Choose the perfect services for your vehicle</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
                           {/* Date Picker */}
                           <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Preferred Date *</Label>
+                            <Label className="text-gray-900 font-medium text-sm md:text-base">Preferred Date *</Label>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <Button
                                   variant="outline"
                                   className={cn(
-                                    "w-full justify-start text-left font-normal h-12 bg-white border-gray-300",
+                                    "w-full justify-start text-left font-normal h-12 bg-white border-gray-300 text-sm md:text-base",
                                     !formData.date && "text-gray-500"
                                   )}
                                 >
@@ -1050,12 +1177,12 @@ const BookingForm = () => {
 
                           {/* Time Picker */}
                           <div className="space-y-2">
-                            <Label className="text-gray-900 font-medium">Preferred Time *</Label>
+                            <Label className="text-gray-900 font-medium text-sm md:text-base">Preferred Time *</Label>
                             <Select
                               value={formData.timeSlot}
                               onValueChange={(val) => setFormData(prev => ({ ...prev, timeSlot: val }))}
                             >
-                              <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900">
+                              <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900 text-sm md:text-base">
                                 <SelectValue placeholder="Select time slot" />
                               </SelectTrigger>
                               <SelectContent>
@@ -1069,19 +1196,19 @@ const BookingForm = () => {
                           </div>
                         </div>
 
-                        <div className="flex justify-between pt-6 border-t border-gray-200">
+                        <div className="flex justify-between pt-4 border-t border-gray-200">
                           <Button
                             type="button"
                             onClick={prevStep}
                             variant="outline"
-                            className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                            className="border-gray-300 text-gray-700 hover:bg-gray-50 text-sm md:text-base"
                           >
                             Back
                           </Button>
                           <Button
                             type="button"
                             onClick={nextStep}
-                            className="bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 px-8 py-2.5"
+                            className="bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 px-6 py-2.5 text-sm md:text-base"
                             disabled={!formData.date || !formData.timeSlot}
                           >
                             Continue to Details
@@ -1091,24 +1218,24 @@ const BookingForm = () => {
                       </motion.div>
                     )}
 
-                    {/* STEP 3 - Personal Info - Spark Ride Style */}
+                    {/* STEP 3 - Personal Info */}
                     {currentStep === 3 && (
                       <motion.div initial="hidden" animate="visible" variants={fadeIn} className="space-y-6">
-                        <div className="text-center mb-8">
-                          <div className="w-12 h-12 bg-[#10B5DB]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <User className="h-6 w-6 text-[#10B5DB]" />
+                        <div className="text-center mb-6 lg:mb-8">
+                          <div className="w-10 h-10 lg:w-12 lg:h-12 bg-[#10B5DB]/10 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
+                            <User className="h-5 w-5 lg:h-6 lg:w-6 text-[#10B5DB]" />
                           </div>
-                          <h2 className="text-2xl font-bold text-gray-900">Your Information</h2>
-                          <p className="text-gray-600 mt-2">Finalize your booking details</p>
+                          <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Your Information</h2>
+                          <p className="text-gray-600 mt-2 text-sm lg:text-base">Finalize your booking details</p>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <div className="grid gap-6">
                           {/* Personal Information */}
                           <div className="space-y-4">
-                            <h3 className="font-semibold text-gray-900">Personal Information</h3>
-                            <div className="space-y-4">
+                            <h3 className="font-semibold text-gray-900 text-lg">Personal Information</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-2">
-                                <Label htmlFor="firstName">First Name *</Label>
+                                <Label htmlFor="firstName" className="text-sm md:text-base">First Name *</Label>
                                 <Input 
                                   id="firstName"
                                   name="firstName" 
@@ -1116,22 +1243,22 @@ const BookingForm = () => {
                                   value={formData.firstName} 
                                   onChange={handleChange} 
                                   required 
-                                  className="bg-white border-gray-300"
+                                  className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                 />
                               </div>
                               <div className="space-y-2">
-                                <Label htmlFor="lastName">Last Name</Label>
+                                <Label htmlFor="lastName" className="text-sm md:text-base">Last Name</Label>
                                 <Input 
                                   id="lastName"
                                   name="lastName" 
                                   placeholder="Doe" 
                                   value={formData.lastName} 
                                   onChange={handleChange} 
-                                  className="bg-white border-gray-300"
+                                  className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                 />
                               </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="email">Email Address *</Label>
+                              <div className="space-y-2 md:col-span-2">
+                                <Label htmlFor="email" className="text-sm md:text-base">Email Address *</Label>
                                 <Input 
                                   id="email"
                                   name="email" 
@@ -1140,11 +1267,11 @@ const BookingForm = () => {
                                   value={formData.email} 
                                   onChange={handleChange} 
                                   required 
-                                  className="bg-white border-gray-300"
+                                  className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                 />
                               </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="phone">Phone Number *</Label>
+                              <div className="space-y-2 md:col-span-2">
+                                <Label htmlFor="phone" className="text-sm md:text-base">Phone Number *</Label>
                                 <Input
                                   id="phone"
                                   name="phone"
@@ -1152,7 +1279,7 @@ const BookingForm = () => {
                                   value={formData.phone}
                                   onChange={handlePhoneChange}
                                   required
-                                  className="bg-white border-gray-300"
+                                  className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                   maxLength={17}
                                 />
                               </div>
@@ -1161,10 +1288,10 @@ const BookingForm = () => {
 
                           {/* Location & Scheduling */}
                           <div className="space-y-4">
-                            <h3 className="font-semibold text-gray-900">Location & Scheduling</h3>
+                            <h3 className="font-semibold text-gray-900 text-lg">Location & Scheduling</h3>
                             <div className="space-y-4">
                               <div className="space-y-2">
-                                <Label htmlFor="address">Address *</Label>
+                                <Label htmlFor="address" className="text-sm md:text-base">Address *</Label>
                                 <Input 
                                   id="address"
                                   name="address" 
@@ -1172,13 +1299,13 @@ const BookingForm = () => {
                                   value={formData.address} 
                                   onChange={handleChange} 
                                   required 
-                                  className="bg-white border-gray-300"
+                                  className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                 />
                               </div>
                               
-                              <div className="grid grid-cols-3 gap-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div className="space-y-2">
-                                  <Label htmlFor="city">City *</Label>
+                                  <Label htmlFor="city" className="text-sm md:text-base">City *</Label>
                                   <Input
                                     id="city"
                                     required
@@ -1186,11 +1313,11 @@ const BookingForm = () => {
                                     value={formData.city}
                                     onChange={handleChange}
                                     placeholder="City"
-                                    className="bg-white border-gray-300"
+                                    className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                   />
                                 </div>
                                 <div className="space-y-2">
-                                  <Label htmlFor="state">State *</Label>
+                                  <Label htmlFor="state" className="text-sm md:text-base">State *</Label>
                                   <Input
                                     id="state"
                                     required
@@ -1198,11 +1325,11 @@ const BookingForm = () => {
                                     value={formData.state}
                                     onChange={handleChange}
                                     placeholder="State"
-                                    className="bg-white border-gray-300"
+                                    className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                   />
                                 </div>
                                 <div className="space-y-2">
-                                  <Label htmlFor="zip">ZIP Code *</Label>
+                                  <Label htmlFor="zip" className="text-sm md:text-base">ZIP Code *</Label>
                                   <Input
                                     id="zip"
                                     required
@@ -1210,7 +1337,7 @@ const BookingForm = () => {
                                     value={formData.zip}
                                     onChange={handleChange}
                                     placeholder="12345"
-                                    className="bg-white border-gray-300"
+                                    className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                     maxLength={5}
                                   />
                                 </div>
@@ -1221,35 +1348,35 @@ const BookingForm = () => {
 
                         {/* Additional Notes */}
                         <div className="space-y-2">
-                          <Label htmlFor="notes">Special Instructions (Optional)</Label>
+                          <Label htmlFor="notes" className="text-sm md:text-base">Special Instructions (Optional)</Label>
                           <Textarea
                             id="notes"
                             name="notes"
                             placeholder="Any special requests or instructions for our team..."
                             value={formData.notes}
                             onChange={handleChange}
-                            className="bg-white border-gray-300 min-h-[100px]"
+                            className="bg-white border-gray-300 min-h-[100px] text-sm md:text-base"
                           />
                         </div>
 
                         {/* Promo Code */}
-                        <div className="border-t border-gray-200 pt-6">
-                          <Label htmlFor="promoCode" className="text-gray-900 font-medium">Promo Code</Label>
-                          <div className="flex gap-3 mt-2">
+                        <div className="border-t border-gray-200 pt-4">
+                          <Label htmlFor="promoCode" className="text-gray-900 font-medium text-sm md:text-base">Promo Code</Label>
+                          <div className="flex flex-col sm:flex-row gap-3 mt-2">
                             <Input
                               id="promoCode"
                               type="text"
                               placeholder="Enter promo code"
                               value={promoCode}
                               onChange={handlePromoCodeChange}
-                              className="flex-1 bg-white border-gray-300"
+                              className="flex-1 bg-white border-gray-300 h-10 text-sm md:text-base"
                               disabled={!!appliedPromo}
                             />
                             {appliedPromo ? (
                               <Button
                                 type="button"
                                 onClick={removePromoCode}
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2"
+                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 text-sm md:text-base sm:w-auto w-full"
                               >
                                 Remove
                               </Button>
@@ -1257,7 +1384,7 @@ const BookingForm = () => {
                               <Button
                                 type="button"
                                 onClick={applyPromoCode}
-                                className="bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 px-4 py-2"
+                                className="bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 px-4 py-2 text-sm md:text-base sm:w-auto w-full"
                                 disabled={!promoCode.trim()}
                               >
                                 Apply Code
@@ -1303,8 +1430,8 @@ const BookingForm = () => {
 
                               return (
                                 <div key={vehicle.id} className="border-b border-gray-200 pb-4 last:border-b-0">
-                                  <h4 className="font-medium mb-2 text-gray-900">Vehicle {index + 1}</h4>
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                                  <h4 className="font-medium mb-2 text-gray-900 text-sm md:text-base">Vehicle {index + 1}</h4>
+                                  <div className="grid grid-cols-1 gap-2 text-sm">
                                     <div>
                                       <span className="font-medium text-gray-600">Service:</span> 
                                       <span className="text-gray-900 ml-1">{mainService?.name || serviceType?.name}</span>
@@ -1327,12 +1454,12 @@ const BookingForm = () => {
                                       <span className="text-gray-900 ml-1">{vehicle.vehicleColor}</span>
                                     </div>
                                     {vehicle.additionalServices.length > 0 && (
-                                      <div className="md:col-span-2">
+                                      <div>
                                         <span className="font-medium text-gray-600">Add-ons:</span> 
                                         <span className="text-gray-900 ml-1">{vehicle.additionalServices.length} service(s)</span>
                                       </div>
                                     )}
-                                    <div className="md:col-span-2 text-right font-medium text-gray-900">
+                                    <div className="text-right font-medium text-gray-900 text-sm md:text-base">
                                       Vehicle Total: ${vehicleTotal.toFixed(2)}
                                     </div>
                                   </div>
@@ -1343,11 +1470,11 @@ const BookingForm = () => {
                             {/* Promo Code Discount Display */}
                             {appliedPromo && (
                               <>
-                                <div className="flex justify-between text-green-600">
+                                <div className="flex justify-between text-green-600 text-sm md:text-base">
                                   <span>Promo Code ({appliedPromo.code}):</span>
                                   <span>-{appliedPromo.discount}%</span>
                                 </div>
-                                <div className="flex justify-between text-green-600">
+                                <div className="flex justify-between text-green-600 text-sm md:text-base">
                                   <span>Discount Amount:</span>
                                   <span>-${calculateDiscount().toFixed(2)}</span>
                                 </div>
@@ -1368,18 +1495,18 @@ const BookingForm = () => {
                         </div>
 
                         {/* Submit */}
-                        <div className="flex justify-between pt-6 border-t border-gray-200">
+                        <div className="flex justify-between pt-4 border-t border-gray-200">
                           <Button
                             type="button"
                             onClick={prevStep}
                             variant="outline"
-                            className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                            className="border-gray-300 text-gray-700 hover:bg-gray-50 text-sm md:text-base"
                           >
                             Back
                           </Button>
                           <Button
                             type="submit"
-                            className="bg-[#10B5DB] hover:bg-[#10B5DB]/90 text-white px-8 py-2.5 flex items-center"
+                            className="bg-[#10B5DB] hover:bg-[#10B5DB]/90 text-white px-6 py-2.5 text-sm md:text-base flex items-center"
                             disabled={
                               isSubmitting ||
                               !formData.firstName ||
@@ -1412,31 +1539,31 @@ const BookingForm = () => {
         </div>
       </div>
 
-      {/* Confirmation Dialog - Spark Ride Style */}
+      {/* Confirmation Dialog */}
       {showConfirmation && (
         <Dialog open={showConfirmation} onOpenChange={closeConfirmation}>
-          <DialogContent className="sm:max-w-lg bg-white border border-gray-200 text-gray-900 shadow-lg rounded-xl">
+          <DialogContent className="sm:max-w-lg bg-white border border-gray-200 text-gray-900 shadow-lg rounded-xl mx-4">
             <DialogHeader className="text-center">
               <div className="flex justify-center mb-4">
-                <div className="w-24 h-24 bg-gradient-to-br from-[#10B5DB]/10 to-[#10B5DB]/5 rounded-full flex items-center justify-center p-4 border border-[#10B5DB]/20">
-                  <Sparkles className="h-12 w-12 text-[#10B5DB]" />
+                <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-br from-[#10B5DB]/10 to-[#10B5DB]/5 rounded-full flex items-center justify-center p-3 md:p-4 border border-[#10B5DB]/20">
+                  <Sparkles className="h-8 w-8 md:h-12 md:w-12 text-[#10B5DB]" />
                 </div>
               </div>
               
-              <DialogTitle className="text-2xl font-bold text-gray-900 text-center">
+              <DialogTitle className="text-xl md:text-2xl font-bold text-gray-900 text-center">
                 Booking Confirmed! 🎉
               </DialogTitle>
-              <DialogDescription className="text-gray-600 text-center mt-2">
+              <DialogDescription className="text-gray-600 text-center mt-2 text-sm md:text-base">
                 Thank you <span className="font-semibold text-gray-900">{formData.firstName}</span>!
                 Your booking has been successfully scheduled.
               </DialogDescription>
             </DialogHeader>
 
-            <div className="mt-6 border border-gray-200 rounded-lg bg-gray-50 p-6">
-              <h3 className="text-lg font-semibold mb-4 text-center text-gray-900">Appointment Details</h3>
-              <div className="grid grid-cols-2 gap-y-3 text-sm">
+            <div className="mt-4 md:mt-6 border border-gray-200 rounded-lg bg-gray-50 p-4 md:p-6">
+              <h3 className="text-lg font-semibold mb-3 md:mb-4 text-center text-gray-900">Appointment Details</h3>
+              <div className="grid grid-cols-1 gap-y-2 md:grid-cols-2 md:gap-y-3 text-sm">
                 <span className="font-medium text-gray-600">Vehicles:</span>
-                <span className="text-right text-gray-900">
+                <span className="text-right text-gray-900 text-sm">
                   {formData.vehicleBookings.map(v => `${v.vehicleYear} ${v.vehicleMake} ${v.vehicleModel}`).join(", ")}
                 </span>
                 <span className="font-medium text-gray-600">Date:</span>
@@ -1446,7 +1573,7 @@ const BookingForm = () => {
                 <span className="font-medium text-gray-600">Time Slot:</span>
                 <span className="text-right text-gray-900">{formData.timeSlot || "N/A"}</span>
                 <span className="font-medium text-gray-600">Services:</span>
-                <span className="text-right text-gray-900">
+                <span className="text-right text-gray-900 text-sm">
                   {formData.vehicleBookings.flatMap(v => {
                     const serviceType = serviceTypes.find(st => st.id === v.serviceType);
                     const mainService = mainServices.find(ms => ms.id === v.mainService);
@@ -1466,10 +1593,10 @@ const BookingForm = () => {
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-4 md:mt-6">
               <Button
                 onClick={closeConfirmation}
-                className="w-full bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 transition-all duration-300 font-semibold shadow-sm hover:shadow-md"
+                className="w-full bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 transition-all duration-300 font-semibold shadow-sm hover:shadow-md text-sm md:text-base"
               >
                 Return to Home
               </Button>

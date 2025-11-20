@@ -51,8 +51,7 @@ const DiscountModal = ({ isOpen, onClose }: DiscountModalProps) => {
     const checkClaimed = async () => {
       try {
         const response = await fetch('/api/discount-claim');
-        const data = await response.json();
-        // Removed unused setHasClaimed
+        // Removed unused data assignment
       } catch (error) {
         console.error('Error checking discount claim:', error);
       }

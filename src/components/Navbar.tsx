@@ -27,7 +27,7 @@ const Navbar = () => {
     { name: "Window Tinting", path: "/services/window-tinting" },
     { name: "Ceramic Coating", path: "/services/ceramic-coating" },
     { name: "Paint Correction", path: "/services/paint-correction" },
-    { name: "All Services", path: "/services" },
+    { name: "All Services", path: "/services/all-services" },
   ];
 
   useEffect(() => {
@@ -40,6 +40,15 @@ const Navbar = () => {
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+    // Close services dropdown when closing mobile menu
+    if (isOpen) {
+      setIsServicesOpen(false);
+    }
+  };
+
+  const closeMenu = () => {
+    setIsOpen(false);
+    setIsServicesOpen(false);
   };
 
   const menuVariants = {
@@ -59,6 +68,23 @@ const Navbar = () => {
     }
   };
 
+  const dropdownVariants = {
+    closed: {
+      opacity: 0,
+      height: 0,
+      transition: {
+        duration: 0.2
+      }
+    },
+    open: {
+      opacity: 1,
+      height: "auto",
+      transition: {
+        duration: 0.2
+      }
+    }
+  };
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -70,7 +96,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo - Left Side */}
-          <Link href="/" className="flex items-center space-x-2 group flex-shrink-0">
+          <Link href="/" className="flex items-center space-x-2 group flex-shrink-0 z-60">
             <Image
               src="/pictures/sparkride.png"
               alt="Spark Ride Logo"
@@ -78,55 +104,66 @@ const Navbar = () => {
               height={40}
               className="h-10 w-10 transition-transform duration-300 group-hover:scale-110"
             />
-            <span className="text-xl font-bold text-primary-blue font-['Poppins'] group-hover:text-[#10B5DB] transition-colors duration-300">
+            <span className="text-xl font-bold text-[#10B5DB] font-['Poppins'] transition-colors duration-300">
               Spark Ride
             </span>
           </Link>
 
           {/* Desktop Navigation - Center */}
-          <div className="hidden md:flex items-center justify-center flex-1 mx-8">
-            <div className="flex items-center space-x-6">
+          <div className="hidden lg:flex items-center justify-center flex-1 mx-8">
+            <div className="flex items-center space-x-4 xl:space-x-6">
               {navLinks.map((link) => (
                 <div key={link.name} className="relative">
                   {link.hasDropdown ? (
                     // Desktop Services Dropdown with Hover
-                    <div className="relative"
+                    <div 
+                      className="relative"
                       onMouseEnter={() => setIsServicesHover(true)}
                       onMouseLeave={() => setIsServicesHover(false)}
                     >
-                      <button className="text-foreground-secondary hover:text-primary border border-transparent hover:border-primary px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105 relative group flex items-center space-x-1">
+                      <button className="text-gray-700 hover:text-[#10B5DB] border border-transparent hover:border-[#10B5DB] px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105 relative group flex items-center space-x-1 font-['Poppins']">
                         <span>{link.name}</span>
-                        <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-300" />
-                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                        <ChevronDown 
+                          className={`ml-1 h-4 w-4 transition-transform duration-300 ${
+                            isServicesHover ? 'rotate-180' : ''
+                          }`} 
+                        />
+                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#10B5DB] transition-all duration-300 group-hover:w-full"></span>
                       </button>
 
                       {/* Hover Dropdown */}
-                      {isServicesHover && (
-                        <div 
-                          className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
-                          onMouseEnter={() => setIsServicesHover(true)}
-                          onMouseLeave={() => setIsServicesHover(false)}
-                        >
-                          {servicesDropdown.map((service) => (
-                            <Link
-                              key={service.name}
-                              href={service.path}
-                              className="block px-4 py-3 text-sm text-foreground-secondary hover:text-primary border border-transparent hover:border-primary hover:bg-gray-50 rounded-full mx-2 my-1 transition-all duration-300 text-center"
-                            >
-                              {service.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
+                      <AnimatePresence>
+                        {isServicesHover && (
+                          <motion.div 
+                            className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50"
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            onMouseEnter={() => setIsServicesHover(true)}
+                            onMouseLeave={() => setIsServicesHover(false)}
+                          >
+                            {servicesDropdown.map((service) => (
+                              <Link
+                                key={service.name}
+                                href={service.path}
+                                className="block px-4 py-3 text-sm text-gray-700 hover:text-[#10B5DB] hover:bg-blue-50 rounded-lg mx-2 transition-all duration-300 font-['Poppins']"
+                              >
+                                {service.name}
+                              </Link>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   ) : (
                     // Regular Desktop Links
                     <Link
                       href={link.path}
-                      className="text-foreground-secondary hover:text-primary border border-transparent hover:border-primary px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105 relative group"
+                      className="text-gray-700 hover:text-[#10B5DB] border border-transparent hover:border-[#10B5DB] px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105 relative group font-['Poppins']"
                     >
                       {link.name}
-                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#10B5DB] transition-all duration-300 group-hover:w-full"></span>
                     </Link>
                   )}
                 </div>
@@ -135,14 +172,14 @@ const Navbar = () => {
           </div>
 
           {/* CTA Button - Right Side */}
-          <div className="hidden md:block flex-shrink-0">
+          <div className="hidden lg:block flex-shrink-0">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <Link
                 href="/booking"
-                className="bg-primary text-white px-6 py-2 rounded-full font-medium hover:bg-[#0E9AC3] transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="bg-[#10B5DB] text-white px-6 py-2.5 rounded-full font-medium hover:bg-[#0E9AC3] transition-all duration-300 shadow-lg hover:shadow-xl font-['Poppins']"
               >
                 Start Booking
               </Link>
@@ -152,7 +189,7 @@ const Navbar = () => {
           {/* Mobile menu button - Right Side */}
           <motion.button
             onClick={toggleMenu}
-            className="md:hidden text-foreground-secondary p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="lg:hidden text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors z-60"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             aria-label="Toggle mobile menu"
@@ -174,43 +211,52 @@ const Navbar = () => {
               animate="open"
               exit="closed"
               variants={menuVariants}
-              className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md shadow-lg border-t border-gray-200"
+              className="lg:hidden fixed inset-0 top-0 left-0 right-0 bg-white/98 backdrop-blur-md z-50 pt-20 pb-8 px-6 overflow-y-auto"
             >
-              <div className="flex flex-col space-y-1 py-4 px-4">
+              {/* Close button for mobile */}
+              <button
+                onClick={closeMenu}
+                className="absolute top-6 right-6 p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Close menu"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="flex flex-col space-y-4 mt-8">
                 {navLinks.map((link) => (
-                  <div key={link.name}>
+                  <div key={link.name} className="border-b border-gray-200 last:border-b-0">
                     {link.hasDropdown ? (
                       // Mobile Services Dropdown
                       <div className="relative">
-                        <motion.div
-                          className="flex justify-between items-center text-foreground-secondary font-medium py-3 px-3 border-b border-gray-200 cursor-pointer rounded-lg hover:bg-gray-50"
+                        <motion.button
+                          className="flex justify-between items-center w-full text-gray-700 font-medium py-4 px-4 rounded-xl hover:bg-gray-50 transition-all duration-300 font-['Poppins'] text-lg"
                           onClick={() => setIsServicesOpen(!isServicesOpen)}
-                          whileHover={{ x: 5 }}
+                          whileTap={{ scale: 0.98 }}
                         >
                           <span>{link.name}</span>
                           <motion.div
                             animate={{ rotate: isServicesOpen ? 180 : 0 }}
                             transition={{ duration: 0.3 }}
                           >
-                            <ChevronDown className="h-4 w-4" />
+                            <ChevronDown className="h-5 w-5" />
                           </motion.div>
-                        </motion.div>
+                        </motion.button>
 
                         <AnimatePresence>
                           {isServicesOpen && (
                             <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.3 }}
-                              className="pl-6 py-2 space-y-2 bg-gray-50/50 rounded-lg mt-1"
+                              variants={dropdownVariants}
+                              initial="closed"
+                              animate="open"
+                              exit="closed"
+                              className="pl-6 space-y-3 bg-gray-50/50 rounded-xl mt-2 mb-4"
                             >
                               {servicesDropdown.map((service) => (
                                 <Link
                                   key={service.name}
                                   href={service.path}
-                                  onClick={toggleMenu}
-                                  className="block text-foreground-secondary py-2 px-3 rounded-lg hover:text-primary hover:bg-white transition-all duration-300 text-center"
+                                  onClick={closeMenu}
+                                  className="block text-gray-600 py-3 px-4 rounded-lg hover:text-[#10B5DB] hover:bg-white transition-all duration-300 font-['Poppins'] text-base border-l-2 border-transparent hover:border-[#10B5DB]"
                                 >
                                   {service.name}
                                 </Link>
@@ -223,8 +269,8 @@ const Navbar = () => {
                       // Regular Mobile Links
                       <Link
                         href={link.path}
-                        onClick={toggleMenu}
-                        className="text-foreground-secondary font-medium py-3 px-3 border-b border-gray-200 hover:text-primary rounded-lg hover:bg-gray-50 transition-all duration-300 block text-center"
+                        onClick={closeMenu}
+                        className="block text-gray-700 font-medium py-4 px-4 rounded-xl hover:bg-gray-50 hover:text-[#10B5DB] transition-all duration-300 font-['Poppins'] text-lg text-center"
                       >
                         {link.name}
                       </Link>
@@ -234,18 +280,26 @@ const Navbar = () => {
 
                 {/* Mobile CTA Button */}
                 <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="pt-3"
+                  className="pt-6 border-t border-gray-200 mt-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
                 >
                   <Link
                     href="/booking"
-                    onClick={toggleMenu}
-                    className="bg-primary text-white py-3 px-6 rounded-full text-center block font-medium hover:bg-[#0E9AC3] transition-all duration-300 shadow-lg"
+                    onClick={closeMenu}
+                    className="bg-[#10B5DB] text-white py-4 px-8 rounded-full text-center block font-medium hover:bg-[#0E9AC3] transition-all duration-300 shadow-lg hover:shadow-xl font-['Poppins'] text-lg"
                   >
                     Start Booking
                   </Link>
                 </motion.div>
+              </div>
+
+              {/* Additional mobile-only content */}
+              <div className="mt-12 text-center">
+                <div className="text-gray-500 text-sm font-['Poppins']">
+                  Premium Auto Detailing Services
+                </div>
               </div>
             </motion.div>
           )}

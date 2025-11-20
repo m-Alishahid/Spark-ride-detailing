@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import "./globals.css";
-import { ToastContainer } from "react-toastify"; // ✅ import toastify
+import { ToastContainer } from "react-toastify";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,33 +13,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const poppins = Poppins({
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  subsets: ['latin'],
+  variable: '--font-poppins',
+});
+
 export const metadata: Metadata = {
-  title: "Decent Auto Detailing - Car Detailing Services in Karachi",
-  description: "Expert auto detailing in Karachi, Pakistan. Mobile car wash, ceramic coating, window tinting, interior detailing. Book your appointment today!",
-  keywords: "auto detailing Karachi, car detailing Pakistan, mobile car wash, ceramic coating, window tinting, interior detailing, Decent Auto Detailing",
-  authors: [{ name: "Decent Auto Detailing" }],
-  creator: "Decent Auto Detailing",
-  publisher: "Decent Auto Detailing",
+  title: "Spark Ride - Premium Auto Detailing Services in Virginia",
+  description: "Professional auto detailing in Virginia. Mobile car wash, ceramic coating, window tinting, paint correction. Transform your vehicle with Spark Ride's expert detailing services.",
+  keywords: "auto detailing Virginia, car detailing, mobile car wash, ceramic coating, window tinting, paint correction, interior detailing, Spark Ride",
+  authors: [{ name: "Spark Ride" }],
+  creator: "Spark Ride",
+  publisher: "Spark Ride",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://decentautocaredetailing.vercel.app'),
+  metadataBase: new URL('https://sparkride.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: "Decent Auto Detailing - Car Detailing Services in Karachi",
-    description: "Expert auto detailing in Karachi, Pakistan. Mobile car wash, ceramic coating, window tinting, interior detailing. Book your appointment today!",
-    url: "https://decentautocaredetailing.vercel.app",
-    siteName: "Decent Auto Detailing",
+    title: "Spark Ride - Premium Auto Detailing Services in Virginia",
+    description: "Professional auto detailing in Virginia. Mobile car wash, ceramic coating, window tinting, paint correction. Transform your vehicle with Spark Ride's expert detailing services.",
+    url: "https://sparkride.vercel.app",
+    siteName: "Spark Ride",
     images: [
       {
-        url: "/favicon.png",
+        url: "/pictures/sparkride.png",
         width: 1200,
         height: 630,
-        alt: "Decent Auto Detailing Logo",
+        alt: "Spark Ride - Premium Auto Detailing",
       },
     ],
     locale: "en_US",
@@ -47,10 +53,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Decent Auto Detailing - Car Detailing Services in Karachi",
-    description: "Expert auto detailing in Karachi, Pakistan. Mobile car wash, ceramic coating, window tinting, interior detailing. Book your appointment today!",
-    images: ["/pictures/main-logo.png"],
-    creator: "@DecentAutoDetail",
+    title: "Spark Ride - Premium Auto Detailing Services in Virginia",
+    description: "Professional auto detailing in Virginia. Mobile car wash, ceramic coating, window tinting, paint correction. Transform your vehicle with Spark Ride's expert detailing services.",
+    images: ["/pictures/sparkride.png"],
+    creator: "@SparkRideVA",
   },
   robots: {
     index: true,
@@ -66,9 +72,12 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/pictures/favicon.png",
-    shortcut: "/pictures/favicon.png",
-    apple: "/pictures/favicon.png",
+    icon: "/pictures/sparkride.png",
+    shortcut: "/pictures/sparkride.png",
+    apple: "/pictures/sparkride.png",
+  },
+  verification: {
+    google: "your-google-search-console-verification", // Add your verification code
   },
 };
 
@@ -79,37 +88,123 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Preload critical resources */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${poppins.variable} ${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         {children}
 
-        {/* JSON-LD Schema Markup for LocalBusiness */}
+        {/* JSON-LD Schema Markup for LocalBusiness - Virginia */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
-              "name": "Decent Auto Detailing",
-              "description": "Professional auto detailing services in Karachi, Pakistan including mobile car wash, ceramic coating, window tinting, and interior detailing.",
-              "url": "https://decentautocaredetailing.vercel.app",
-              "telephone": "+92 ___ _______",
+              "name": "Spark Ride",
+              "description": "Premium auto detailing services in Virginia including mobile car wash, ceramic coating, window tinting, paint correction, and interior detailing.",
+              "url": "https://sparkride.vercel.app",
+              "telephone": "+1 (703) XXX-XXXX",
+              "email": "info@sparkride.com",
               "address": {
                 "@type": "PostalAddress",
-                "addressLocality": "Karachi",
-                "addressRegion": "Sindh",
-                "addressCountry": "Pakistan"
+                "streetAddress": "123 Auto Care Lane",
+                "addressLocality": "Richmond",
+                "addressRegion": "VA",
+                "postalCode": "23220",
+                "addressCountry": "US"
               },
-              "areaServed": "Karachi",
-              "serviceType": "Auto Detailing Services",
-              "sameAs": [
-                "https://instagram.com/decentautodetailing", // Replace with actual Instagram link
-                "https://wa.me/+92___ _______" // Replace with actual WhatsApp link
+              "areaServed": {
+                "@type": "State",
+                "name": "Virginia"
+              },
+              "serviceType": [
+                "Auto Detailing",
+                "Car Wash",
+                "Ceramic Coating",
+                "Window Tinting",
+                "Paint Correction"
               ],
-              "image": "https://decentautocaredetailing.vercel.app/pictures/main-logo.png",
+              "sameAs": [
+                "https://www.instagram.com/sparkride_va",
+                "https://www.facebook.com/sparkrideva",
+                "https://twitter.com/SparkRideVA"
+              ],
+              "image": "https://sparkride.vercel.app/pictures/sparkride.png",
               "priceRange": "$$",
-              "openingHours": "Mo-Su 09:00-18:00"
+              "openingHours": [
+                "Mo-Fr 08:00-18:00",
+                "Sa 08:00-17:00",
+                "Su 09:00-16:00"
+              ],
+              "paymentAccepted": ["Cash", "Credit Card", "Debit Card"],
+              "currenciesAccepted": "USD",
+              "hasOfferCatalog": {
+                "@type": "OfferCatalog",
+                "name": "Auto Detailing Services",
+                "itemListElement": [
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "Basic Wash & Detail",
+                      "description": "Exterior wash and interior vacuuming"
+                    }
+                  },
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "Ceramic Coating",
+                      "description": "Professional ceramic coating application"
+                    }
+                  },
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "Window Tinting",
+                      "description": "Premium window tinting services"
+                    }
+                  }
+                ]
+              }
+            })
+          }}
+        />
+
+        {/* Additional Schema for Auto Business */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "AutoBusiness",
+              "name": "Spark Ride",
+              "description": "Professional auto detailing and car care services in Virginia",
+              "url": "https://sparkride.vercel.app",
+              "telephone": "+1 (703) XXX-XXXX",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Richmond",
+                "addressRegion": "VA",
+                "addressCountry": "US"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": "37.5407",
+                "longitude": "-77.4360"
+              },
+              "openingHours": "Mo-Fr 08:00-18:00, Sa 08:00-17:00, Su 09:00-16:00",
+              "priceRange": "$$",
+              "serviceArea": {
+                "@type": "State",
+                "name": "Virginia"
+              }
             })
           }}
         />
@@ -125,7 +220,10 @@ export default function RootLayout({
           pauseOnFocusLoss
           draggable
           pauseOnHover
-          theme="dark" // light bhi use kar sakta hai
+          theme="light"
+          style={{
+            fontFamily: 'var(--font-poppins), sans-serif',
+          }}
         />
 
         {/* Tawk.to Live Chat */}
@@ -143,6 +241,18 @@ s0.parentNode.insertBefore(s1,s0);
 </script>
 <!--End of Tawk.to Script-->`
         }} />
+
+        {/* Google Analytics Script (Uncomment and add your GA ID) */}
+        {/* <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'YOUR_GA_ID');
+            `,
+          }}
+        /> */}
       </body>
     </html>
   );

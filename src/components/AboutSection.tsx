@@ -48,7 +48,7 @@ const AboutSection = () => {
   };
 
   return (
-    <section id="about-section" className="py-24 bg-gradient-to-br from-white to-gray-50/50">
+    <section id="about-section" className="py-24 bg-gradient-to-br from-white to-gray-50/50 font-poppins">
       {/* About Section */}
       <div className="container mx-auto px-4 mb-24">
         <div className="flex flex-col lg:flex-row items-center gap-16">
@@ -61,8 +61,8 @@ const AboutSection = () => {
           >
             <div className="relative">
               {/* Background Decorations */}
-              <div className="absolute -top-6 -left-6 w-32 h-32 lg:w-40 lg:h-40 bg-gradient-to-br from-[#10B5DB]/10 to-blue-500/10 rounded-full z-0 animate-pulse"></div>
-              <div className="absolute -bottom-6 -right-6 w-40 h-40 lg:w-48 lg:h-48 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-full z-0"></div>
+              <div className="absolute -top-6 -left-6 w-32 h-32 lg:w-40 lg:h-40 bg-[#10B5DB]/10 rounded-full z-0 animate-pulse"></div>
+              <div className="absolute -bottom-6 -right-6 w-40 h-40 lg:w-48 lg:h-48 bg-[#10B5DB]/5 rounded-full z-0"></div>
               
               {/* Main Image */}
               <div className="relative rounded-3xl overflow-hidden shadow-2xl group">
@@ -111,7 +111,7 @@ const AboutSection = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <span className="text-gray-900">Transform Your</span>{' '}
-              <span className="bg-gradient-to-r from-[#10B5DB] to-blue-600 bg-clip-text text-transparent">Ride&apos;s Shine</span>
+              <span className="text-[#10B5DB]">Ride&apos;s Shine</span>
             </motion.h2>
 
             <motion.p 
@@ -157,7 +157,7 @@ const AboutSection = () => {
             >
               <Link
                 href="/services"
-                className="bg-gradient-to-r from-[#10B5DB] to-blue-600 text-white px-8 py-4 rounded-2xl font-semibold hover:from-blue-600 hover:to-[#0E9AC3] transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-center"
+                className="bg-[#10B5DB] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#0E9AC3] transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-center"
               >
                 Explore Services
               </Link>
@@ -255,7 +255,7 @@ const AboutSection = () => {
 
                 <Link
                   href={`/services/${service.id}`}
-                  className="w-full bg-gradient-to-r from-[#10B5DB] to-blue-600 text-white py-4 rounded-2xl font-semibold hover:from-blue-600 hover:to-[#0E9AC3] transition-all duration-300 transform hover:scale-105 shadow-lg text-center block"
+                  className="w-full bg-[#10B5DB] text-white py-4 rounded-2xl font-semibold hover:bg-[#0E9AC3] transition-all duration-300 transform hover:scale-105 shadow-lg text-center block"
                 >
                   View Details
                 </Link>
