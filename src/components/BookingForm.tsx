@@ -178,9 +178,9 @@ const BookingForm = () => {
   const WEBSITE_NAME = "Spark Ride";
 
   // Animation variants
-  const fadeIn = { 
-    hidden: { opacity: 0, y: 10 }, 
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } 
+  const fadeIn = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
   };
 
   const slideVariants = {
@@ -220,7 +220,7 @@ const BookingForm = () => {
   const autoDetectState = (city: string): string => {
     if (!city) return "";
     const normalizedCity = city.toLowerCase().trim();
-    
+
     // Virginia cities mapping
     const virginiaCities: { [key: string]: string } = {
       'richmond': 'VA',
@@ -430,8 +430,8 @@ const BookingForm = () => {
   const updateVehicleBooking = (vehicleId: string, field: keyof VehicleBooking, value: string | string[]) => {
     setFormData(prev => ({
       ...prev,
-      vehicleBookings: prev.vehicleBookings.map(vehicle => 
-        vehicle.id === vehicleId 
+      vehicleBookings: prev.vehicleBookings.map(vehicle =>
+        vehicle.id === vehicleId
           ? { ...vehicle, [field]: value }
           : vehicle
       )
@@ -445,14 +445,14 @@ const BookingForm = () => {
     updateVehicleBooking(vehicleId, 'mainService', "");
     updateVehicleBooking(vehicleId, 'package', "");
     updateVehicleBooking(vehicleId, 'additionalServices', []);
-    
+
     const serviceType = serviceTypes.find(st => st.id === serviceTypeId);
     if (serviceType) {
       updateVehicleBooking(vehicleId, 'vehicleType', serviceType.name);
     } else {
       updateVehicleBooking(vehicleId, 'vehicleType', "");
     }
-    
+
     updateVehicleBooking(vehicleId, 'vehicleMake', "");
     updateVehicleBooking(vehicleId, 'vehicleModel', "");
     updateVehicleBooking(vehicleId, 'vehicleYear', "");
@@ -466,7 +466,7 @@ const BookingForm = () => {
     updateVehicleBooking(vehicleId, 'mainService', "");
     updateVehicleBooking(vehicleId, 'package', "");
     updateVehicleBooking(vehicleId, 'additionalServices', []);
-    
+
     const vehicle = formData.vehicleBookings.find(v => v.id === vehicleId);
     if (vehicle) {
       const serviceType = serviceTypes.find(st => st.id === vehicle.serviceType);
@@ -570,9 +570,9 @@ const BookingForm = () => {
         status: "pending"
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/booking`, { 
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/booking`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(bookingData),
@@ -646,7 +646,7 @@ const BookingForm = () => {
   const areAllVehiclesValid = formData.vehicleBookings.every(vehicle => {
     const serviceType = serviceTypes.find(st => st.id === vehicle.serviceType);
     const mainService = mainServices.find(ms => ms.id === vehicle.mainService);
-    
+
     let pkg;
     if (mainService) {
       pkg = mainService.packages.find(p => p.id === vehicle.package);
@@ -659,14 +659,14 @@ const BookingForm = () => {
 
     const requiresLength = pkg?.pricingType === "perFoot";
 
-    return vehicle.serviceType && 
-           vehicle.mainService && 
-           vehicle.package &&
-           vehicle.vehicleMake &&
-           vehicle.vehicleModel &&
-           vehicle.vehicleYear &&
-           vehicle.vehicleColor &&
-           (!requiresLength || vehicle.vehicleLength);
+    return vehicle.serviceType &&
+      vehicle.mainService &&
+      vehicle.package &&
+      vehicle.vehicleMake &&
+      vehicle.vehicleModel &&
+      vehicle.vehicleYear &&
+      vehicle.vehicleColor &&
+      (!requiresLength || vehicle.vehicleLength);
   });
 
   // Step icons and titles
@@ -691,22 +691,21 @@ const BookingForm = () => {
               >
                 <ChevronLeft size={20} />
               </Button>
-              
+
               <div className="flex-1 px-4">
                 <div className="flex justify-between items-center mb-2">
                   {stepConfig.map(({ step: stepNum, label }) => {
                     const isActive = currentStep === stepNum;
                     const isCompleted = currentStep > stepNum;
-                    
+
                     return (
                       <div key={stepNum} className="flex flex-col items-center">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                          isActive 
-                            ? "bg-[#10B5DB] border-[#10B5DB] text-white" 
-                            : isCompleted 
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${isActive
+                            ? "bg-[#10B5DB] border-[#10B5DB] text-white"
+                            : isCompleted
                               ? "bg-green-500 border-green-500 text-white"
                               : "bg-gray-100 border-gray-300 text-gray-500"
-                        }`}>
+                          }`}>
                           {isCompleted ? <Check size={16} /> : stepNum}
                         </div>
                         <span className={`text-xs mt-1 ${isActive ? "text-[#10B5DB] font-medium" : "text-gray-500"}`}>
@@ -758,29 +757,26 @@ const BookingForm = () => {
                             setIsMobileMenuOpen(false);
                           }
                         }}
-                        className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                          isActive 
-                            ? "border-[#10B5DB] bg-[#10B5DB]/5" 
+                        className={`w-full text-left p-3 rounded-lg border-2 transition-all ${isActive
+                            ? "border-[#10B5DB] bg-[#10B5DB]/5"
                             : isCompleted
                               ? "border-green-200 bg-green-50"
                               : "border-gray-200 bg-gray-50"
-                        } ${stepNum > currentStep ? "opacity-50 cursor-not-allowed" : ""}`}
+                          } ${stepNum > currentStep ? "opacity-50 cursor-not-allowed" : ""}`}
                         disabled={stepNum > currentStep}
                       >
                         <div className="flex items-center space-x-3">
-                          <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                            isActive 
-                              ? "bg-[#10B5DB] border-[#10B5DB] text-white" 
-                              : isCompleted 
+                          <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 ${isActive
+                              ? "bg-[#10B5DB] border-[#10B5DB] text-white"
+                              : isCompleted
                                 ? "bg-green-500 border-green-500 text-white"
                                 : "bg-gray-100 border-gray-300 text-gray-500"
-                          }`}>
+                            }`}>
                             {isCompleted ? <Check size={16} /> : icon}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`font-medium text-sm ${
-                              isActive ? "text-[#10B5DB]" : isCompleted ? "text-gray-900" : "text-gray-500"
-                            }`}>
+                            <p className={`font-medium text-sm ${isActive ? "text-[#10B5DB]" : isCompleted ? "text-gray-900" : "text-gray-500"
+                              }`}>
                               {label}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">{description}</p>
@@ -797,7 +793,7 @@ const BookingForm = () => {
 
         <div className="container mx-auto px-4 py-6 lg:py-12">
           <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 lg:gap-8">
-            
+
             {/* Progress Bar - Desktop */}
             <div className="hidden lg:flex lg:w-1/4">
               <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm p-6">
@@ -809,19 +805,17 @@ const BookingForm = () => {
 
                     return (
                       <div key={stepNum} className="flex items-start space-x-3">
-                        <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                          isActive 
-                            ? "bg-[#10B5DB] border-[#10B5DB] text-white" 
-                            : isCompleted 
+                        <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 ${isActive
+                            ? "bg-[#10B5DB] border-[#10B5DB] text-white"
+                            : isCompleted
                               ? "bg-green-500 border-green-500 text-white"
                               : "bg-gray-100 border-gray-300 text-gray-500"
-                        }`}>
+                          }`}>
                           {isCompleted ? <Check size={16} /> : icon}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className={`font-medium text-sm ${
-                            isActive ? "text-[#10B5DB]" : isCompleted ? "text-gray-900" : "text-gray-500"
-                          }`}>
+                          <p className={`font-medium text-sm ${isActive ? "text-[#10B5DB]" : isCompleted ? "text-gray-900" : "text-gray-500"
+                            }`}>
                             {label}
                           </p>
                           <p className="text-xs text-gray-500 mt-1">{description}</p>
@@ -838,7 +832,7 @@ const BookingForm = () => {
               <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-4 md:p-6 lg:p-8">
                 <form onSubmit={handleSubmit}>
                   <AnimatePresence initial={false} custom={direction} mode="wait">
-                    
+
                     {/* STEP 1 - Vehicle Information */}
                     {currentStep === 1 && (
                       <motion.div
@@ -907,7 +901,7 @@ const BookingForm = () => {
                                   onClick={() => removeVehicleBooking(vehicle.id)}
                                   variant="outline"
                                   size="sm"
-                                  className="absolute top-3 right-3 md:top-4 md:right-4 text-red-600 border-red-200 hover:bg-red-50"
+                                  className="absolute top-3 right-3 md:top-4 md:right-4 text-[#10B5DB] border-[#10B5DB]/20 hover:bg-[#10B5DB]/10"
                                 >
                                   <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
                                 </Button>
@@ -928,8 +922,8 @@ const BookingForm = () => {
                                 {/* Service Type Selection */}
                                 <div className="space-y-2">
                                   <Label className="text-gray-900 font-medium">Vehicle Type *</Label>
-                                  <Select 
-                                    value={vehicle.serviceType} 
+                                  <Select
+                                    value={vehicle.serviceType}
                                     onValueChange={(value) => handleServiceTypeChange(vehicle.id, value)}
                                   >
                                     <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900">
@@ -937,7 +931,11 @@ const BookingForm = () => {
                                     </SelectTrigger>
                                     <SelectContent>
                                       {serviceTypes.map((service) => (
-                                        <SelectItem key={service.id} value={service.id}>
+                                        <SelectItem
+                                          key={service.id}
+                                          value={service.id}
+                                          className="focus:bg-[#10B5DB] focus:text-white data-[state=checked]:bg-[#10B5DB] data-[state=checked]:text-white"
+                                        >
                                           {service.name}
                                         </SelectItem>
                                       ))}
@@ -949,8 +947,8 @@ const BookingForm = () => {
                                 {serviceType?.variants && (
                                   <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Car Type</Label>
-                                    <Select 
-                                      value={vehicle.variant} 
+                                    <Select
+                                      value={vehicle.variant}
                                       onValueChange={(value) => handleVariantChange(vehicle.id, value)}
                                     >
                                       <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900">
@@ -958,7 +956,11 @@ const BookingForm = () => {
                                       </SelectTrigger>
                                       <SelectContent>
                                         {serviceType.variants.map((variant) => (
-                                          <SelectItem key={variant.id} value={variant.id}>
+                                          <SelectItem
+                                            key={variant.id}
+                                            value={variant.id}
+                                            className="focus:bg-[#10B5DB] focus:text-white data-[state=checked]:bg-[#10B5DB] data-[state=checked]:text-white"
+                                          >
                                             {variant.name}
                                           </SelectItem>
                                         ))}
@@ -971,8 +973,8 @@ const BookingForm = () => {
                                 {(vehicle.variant || (serviceType && !serviceType.variants)) && !vehicle.mainService && (
                                   <div className="space-y-2">
                                     <Label className="text-gray-900 font-medium">Premium Service Type</Label>
-                                    <Select 
-                                      value={vehicle.mainService} 
+                                    <Select
+                                      value={vehicle.mainService}
                                       onValueChange={(value) => handleMainServiceChange(vehicle.id, value)}
                                     >
                                       <SelectTrigger className="h-12 bg-white border-gray-300 text-gray-900">
@@ -980,7 +982,11 @@ const BookingForm = () => {
                                       </SelectTrigger>
                                       <SelectContent>
                                         {mainServices.map((service) => (
-                                          <SelectItem key={service.id} value={service.id}>
+                                          <SelectItem
+                                            key={service.id}
+                                            value={service.id}
+                                            className="focus:bg-[#10B5DB] focus:text-white data-[state=checked]:bg-[#10B5DB] data-[state=checked]:text-white"
+                                          >
                                             {service.name}
                                           </SelectItem>
                                         ))}
@@ -1002,11 +1008,10 @@ const BookingForm = () => {
                                           <div
                                             key={pkg.id}
                                             onClick={() => updateVehicleBooking(vehicle.id, 'package', pkg.id)}
-                                            className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 ${
-                                              isSelected 
-                                                ? "border-[#10B5DB] bg-[#10B5DB]/5 shadow-sm" 
+                                            className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 ${isSelected
+                                                ? "border-[#01B5DB] bg-[#10B5DB]/5 shadow-sm"
                                                 : "border-gray-200 hover:border-[#10B5DB]/50 hover:shadow-sm"
-                                            }`}
+                                              }`}
                                           >
                                             <div className="flex justify-between items-start mb-2">
                                               <span className="font-medium text-gray-900 text-sm md:text-base">{pkg.name}</span>
@@ -1111,9 +1116,9 @@ const BookingForm = () => {
 
                         {/* Navigation */}
                         <div className="flex justify-end pt-4 border-t border-gray-200">
-                          <Button 
+                          <Button
                             type="button"
-                            onClick={nextStep} 
+                            onClick={nextStep}
                             disabled={!areAllVehiclesValid}
                             className="bg-[#10B5DB] text-white hover:bg-[#10B5DB]/90 px-6 py-2.5 text-sm md:text-base"
                           >
@@ -1236,37 +1241,37 @@ const BookingForm = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-2">
                                 <Label htmlFor="firstName" className="text-sm md:text-base">First Name *</Label>
-                                <Input 
+                                <Input
                                   id="firstName"
-                                  name="firstName" 
-                                  placeholder="John" 
-                                  value={formData.firstName} 
-                                  onChange={handleChange} 
-                                  required 
+                                  name="firstName"
+                                  placeholder="John"
+                                  value={formData.firstName}
+                                  onChange={handleChange}
+                                  required
                                   className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                 />
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor="lastName" className="text-sm md:text-base">Last Name</Label>
-                                <Input 
+                                <Input
                                   id="lastName"
-                                  name="lastName" 
-                                  placeholder="Doe" 
-                                  value={formData.lastName} 
-                                  onChange={handleChange} 
+                                  name="lastName"
+                                  placeholder="Doe"
+                                  value={formData.lastName}
+                                  onChange={handleChange}
                                   className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                 />
                               </div>
                               <div className="space-y-2 md:col-span-2">
                                 <Label htmlFor="email" className="text-sm md:text-base">Email Address *</Label>
-                                <Input 
+                                <Input
                                   id="email"
-                                  name="email" 
-                                  type="email" 
-                                  placeholder="john@example.com" 
-                                  value={formData.email} 
-                                  onChange={handleChange} 
-                                  required 
+                                  name="email"
+                                  type="email"
+                                  placeholder="john@example.com"
+                                  value={formData.email}
+                                  onChange={handleChange}
+                                  required
                                   className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                 />
                               </div>
@@ -1292,17 +1297,17 @@ const BookingForm = () => {
                             <div className="space-y-4">
                               <div className="space-y-2">
                                 <Label htmlFor="address" className="text-sm md:text-base">Address *</Label>
-                                <Input 
+                                <Input
                                   id="address"
-                                  name="address" 
-                                  placeholder="123 Main Street" 
-                                  value={formData.address} 
-                                  onChange={handleChange} 
-                                  required 
+                                  name="address"
+                                  placeholder="123 Main Street"
+                                  value={formData.address}
+                                  onChange={handleChange}
+                                  required
                                   className="bg-white border-gray-300 h-10 text-sm md:text-base"
                                 />
                               </div>
-                              
+
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div className="space-y-2">
                                   <Label htmlFor="city" className="text-sm md:text-base">City *</Label>
@@ -1376,7 +1381,7 @@ const BookingForm = () => {
                               <Button
                                 type="button"
                                 onClick={removePromoCode}
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 text-sm md:text-base sm:w-auto w-full"
+                                className="bg-[#10B5DB] hover:bg-[#10B5DB]/90 text-white px-4 py-2 text-sm md:text-base sm:w-auto w-full"
                               >
                                 Remove
                               </Button>
@@ -1392,7 +1397,7 @@ const BookingForm = () => {
                             )}
                           </div>
                           {promoError && (
-                            <p className="text-red-600 text-sm mt-2">{promoError}</p>
+                            <p className="text-[#10B5DB] text-sm mt-2">{promoError}</p>
                           )}
                           {appliedPromo && (
                             <p className="text-green-600 text-sm mt-2">
@@ -1433,7 +1438,7 @@ const BookingForm = () => {
                                   <h4 className="font-medium mb-2 text-gray-900 text-sm md:text-base">Vehicle {index + 1}</h4>
                                   <div className="grid grid-cols-1 gap-2 text-sm">
                                     <div>
-                                      <span className="font-medium text-gray-600">Service:</span> 
+                                      <span className="font-medium text-gray-600">Service:</span>
                                       <span className="text-gray-900 ml-1">{mainService?.name || serviceType?.name}</span>
                                       {vehicle.variant && (
                                         <span className="text-gray-600">
@@ -1442,20 +1447,20 @@ const BookingForm = () => {
                                       )}
                                     </div>
                                     <div>
-                                      <span className="font-medium text-gray-600">Package:</span> 
+                                      <span className="font-medium text-gray-600">Package:</span>
                                       <span className="text-gray-900 ml-1">{selectedPackage?.name}</span>
                                     </div>
                                     <div>
-                                      <span className="font-medium text-gray-600">Vehicle:</span> 
+                                      <span className="font-medium text-gray-600">Vehicle:</span>
                                       <span className="text-gray-900 ml-1">{vehicle.vehicleYear} {vehicle.vehicleMake} {vehicle.vehicleModel}</span>
                                     </div>
                                     <div>
-                                      <span className="font-medium text-gray-600">Color:</span> 
+                                      <span className="font-medium text-gray-600">Color:</span>
                                       <span className="text-gray-900 ml-1">{vehicle.vehicleColor}</span>
                                     </div>
                                     {vehicle.additionalServices.length > 0 && (
                                       <div>
-                                        <span className="font-medium text-gray-600">Add-ons:</span> 
+                                        <span className="font-medium text-gray-600">Add-ons:</span>
                                         <span className="text-gray-900 ml-1">{vehicle.additionalServices.length} service(s)</span>
                                       </div>
                                     )}
@@ -1549,7 +1554,7 @@ const BookingForm = () => {
                   <Sparkles className="h-8 w-8 md:h-12 md:w-12 text-[#10B5DB]" />
                 </div>
               </div>
-              
+
               <DialogTitle className="text-xl md:text-2xl font-bold text-gray-900 text-center">
                 Booking Confirmed! 🎉
               </DialogTitle>
